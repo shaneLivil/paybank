@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<script src="../js/user_top.js"></script>
+	</head>
+
+	<body>
+		<script src="../js/user_left.js"></script>
+
+		<div class="main-content">
+			<div class="header">
+				<div class="container-fluid">
+					<div class="header-body">
+						<div class="row align-items-end">
+							<div class="col">
+								<h6 class="header-pretitle">User Home</h6>
+								<h1 class="header-title">마케팅 지원</h1>
+							</div>
+							<div class="col-auto d-none d-md-flex">
+								<a href="javascript:logout();" class="btn btn-primary">로그아웃</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-12">
+						<div class="card" data-toggle="lists">
+							<div class="card-body">
+								<ul class="list-group list-group-lg list-group-flush list my-n4" id="main_ul_id"></ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="modal fade" id="modalMembers" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content">
+						<div class="modal-card card" data-toggle="lists">
+							<div class="card-body" style="max-height: 1100px;">
+								<div class="row justify-content-center">
+									<div>
+										<div class="form-group" style="width: 100%;">
+											<div class="input-group input-group-merge mb-3">
+												<input type="text" id="notice_title" class="form-control" placeholder="제목" disabled style="width: 100%;">
+											</div>
+											<div class="input-group input-group-merge mb-3">
+                                                <textarea class="form-control" id="notice_content" disabled style="width: 100%; resize: none;"></textarea>
+											</div>
+											<div class="input-group input-group-merge mb-3"><img src="" id="n_main_img_id" style="width: 100%;"></div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+
+	<script src="../../assets/libs/jquery/dist/jquery.min.js"></script>
+    <script src="../../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/libs/@shopify/draggable/lib/es5/draggable.bundle.legacy.js"></script>
+    <script src="../../assets/libs/autosize/dist/autosize.min.js"></script>
+    <script src="../../assets/libs/chart.js/dist/Chart.min.js"></script>
+    <script src="../../assets/libs/dropzone/dist/min/dropzone.min.js"></script>
+    <script src="../../assets/libs/flatpickr/dist/flatpickr.min.js"></script>
+    <script src="../../assets/libs/highlightjs/highlight.pack.min.js"></script>
+    <script src="../../assets/libs/jquery-mask-plugin/dist/jquery.mask.min.js"></script>
+    <script src="../../assets/libs/list.js/dist/list.min.js"></script>
+    <script src="../../assets/libs/quill/dist/quill.min.js"></script>
+    <script src="../../assets/libs/select2/dist/js/select2.min.js"></script>
+    <script src="../../assets/libs/chart.js/Chart.extension.min.js"></script>
+    <script src="../../assets/js/theme.min.js"></script>
+	<script src="../js/html.js"></script>
+</html>
+
+<script>
+	var pk_id = 0;
+	var personInfoJson = "";
+
+	ck_cookie();
+
+	function ck_cookie(){
+        var data = {
+            result: 'u_ck_cookie'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    var message = JSON.parse(json_data.message);
+                    pk_id = message.pk_id;
+                    u_marketing();
+                }else{
+                    alert("잘못된 접근이거나. 아이디 혹은 비밀번호가 틀렸습니다.");
+                    location.href="../../index.html";
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+	}
+
+	function u_marketing(){
+		var data = {
+			result: 'u_marketing'
+		}
+
+		$.ajax({
+			type: 'POST',
+			url: '../send_db.php',
+			dataType: 'text',
+			data: data,
+			success: function(data){
+				var json_data = JSON.parse(data);
+				if(json_data.code == 1){
+					var message = JSON.parse(json_data.message);
+					personInfoJson = message;
+					u_marketing_append(message);
+				}else{
+					if(json_data.message == 'FAIL'){ alert("서버 에러. 잠시후 다시 시도하세요."); }
+					else if(json_data.message == 'NoData'){ $('#main_ul_id').html('<li class="list-group-item px-0" style="text-align: center;">No Data</li>'); }
+				}
+			},
+			error: function(err){
+				alert('error: ' + JSON.stringify(err));
+			}
+		});
+	}
+	
+	function click_marketing(count){
+		var img_path = "../data/imgmain/"+personInfoJson[count].img_path;
+		$('#notice_title').val(personInfoJson[count].title);
+		$('#notice_content').val(personInfoJson[count].content);
+		$('#n_main_img_id').attr("src", img_path);
+	}
+
+	function zip_downloat(count){
+		window.location = './file_d.php?zip_path='+personInfoJson[count].zip_path;
+	}
+
+	function logout(){
+        var data = {
+            result: 'u_logout'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    location.href="../../index.html";
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+</script>

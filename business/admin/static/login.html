@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initiatial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="LIVIL TECHNOLOGY">
+        <!-- Libs CSS -->
+        <link rel="stylesheet" href="../../../assets/fonts/feather/feather.min.css">
+        <link rel="stylesheet" href="../../../assets/libs/flatpickr/dist/flatpickr.min.css">
+        <link rel="stylesheet" href="../../../assets/libs/quill/dist/quill.core.css">
+        <link rel="stylesheet" href="../../../assets/libs/select2/dist/css/select2.min.css">
+        <link rel="stylesheet" href="../../../assets/libs/highlight.js/styles/vs2015.css">
+        <link rel="stylesheet" href="../../../assets/css/theme.min.css" id="stylesheetLight">
+        <link rel="stylesheet" href="../../../assets/css/theme-dark.min.css" id="stylesheetDark">
+        <link rel="stylesheet" href="../../../common/styles/common.css" type="text/css">
+        <link rel="stylesheet" href="../../../plugins/layer/theme/default/layer.css">
+        <style>
+            body { 
+                display: none; 
+                margin: 50px 0;
+                text-align: center;
+            }
+            .form_input_num {
+                font-size: 16px;
+                color: #818794;
+                text-align: center;
+                background: url(../../../assets/img/covers/account_10.png) no-repeat 53px;
+                background-size: 13px;
+                padding-right: 20px;
+                width: 73px;
+                border-right: 1px solid #8e95a0;
+                height: 18px;
+                line-height: 18px;
+                /*margin: 12px 0;*/
+                display: inline-block;
+            }
+            .center-ul {
+                width: 100%;
+                background-color: #fbfcff;
+                max-height: 176px;
+                overflow: auto;
+                position: absolute;
+                top: 46px;
+                left: 0;
+                z-index: 100;
+                border: 1px solid #e8f0fe;
+                padding: 5px 0;
+                display: none;
+            }
+            .center-li {
+                height: 32px;
+                line-height: 32px;
+                padding: 0 15px;
+                list-style: none;
+            }
+            .center-li-span1 {
+                float: left;
+                font-size:15px;
+                font-weight:600;
+                color:#7b8ea7;
+            }
+            .center-li-span2 {
+                float: right;
+                font-size: 15px;
+                font-weight: 400;
+                color: rgb(123, 142, 175);
+            }
+            .center-li:hover {
+                background-color: #f3f4f7;
+            }
+        </style>
+        <title>토크인증</title>
+    </head>
+    <body class="d-flex align-items-center bg-auth border-primary">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-5 col-xl-4 my-5">
+                    <h1 class="display-4 text-center mb-3">토큰인증</h1>
+                    <p class="text-muted text-center mb-5">지갑의 실제코인영동으로 요청하는 토큰입니다.</p>
+
+                    <div class="form-group" style="position: relative;">
+                        <div class="input-group input-group-merge mb-3">
+                            <input type="text" id="username" onkeyup="this.value=this.value.replace(/\D/g,'')" maxlength="15" class="form-control form-control-prepended" placeholder="Please enter your phone number">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text"><span class="fe fe-phone  mr-4"></span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-group" style="margin-bottom: 0.975rem;">
+                            <div class="input-group input-group-merge mb-3" style="margin-bottom: 5px !important;">
+                                <input type="password" id="password" onKeyUp="value=value.replace(/[\W]/g,'')" maxlength="15" class="form-control form-control-prepended" placeholder="Please enter your password">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text"><span class="fe fe-lock mr-4"></span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-lg btn-block btn-primary mb-3" id="popup-submit" style="display: block;">토큰인증</button>
+                    <button type="button" id="popup-captcha" style="display: none;"></button>
+                </div>
+            </div>
+        </div>
+
+        <script src="../../../assets/libs/jquery/dist/jquery.min.js"></script>
+        <script src="../../../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="../../../assets/libs/@shopify/draggable/lib/es5/draggable.bundle.legacy.js"></script>
+        <script src="../../../assets/libs/autosize/dist/autosize.min.js"></script>
+        <script src="../../../assets/libs/chart.js/dist/Chart.min.js"></script>
+        <script src="../../../assets/libs/dropzone/dist/min/dropzone.min.js"></script>
+        <script src="../../../assets/libs/flatpickr/dist/flatpickr.min.js"></script>
+        <script src="../../../assets/libs/highlightjs/highlight.pack.min.js"></script>
+        <script src="../../../assets/libs/jquery-mask-plugin/dist/jquery.mask.min.js"></script>
+        <script src="../../../assets/libs/list.js/dist/list.min.js"></script>
+        <script src="../../../assets/libs/quill/dist/quill.min.js"></script>
+        <script src="../../../assets/libs/select2/dist/js/select2.min.js"></script>
+        <!-- 토큰연동 -->
+        <script src="http://code.jquery.com/jquery-1.12.3.min.js"></script>
+        <script src="./gt.js"></script>
+        <script src="../../../assets/libs/jquery/dist/jquery.min.js"></script>
+        <script src="../../js/md5.min.js"></script>
+    </body>
+</html>
+
+<script>
+    var username = "";
+    var password = "";
+    var mark = "";
+
+    var headers = {
+        "Authorization": "Bearer",
+        "Client-Type": "1",
+        "Content-Type": "application/json",
+        "Accept-Language": "zh-CN"
+    }
+
+    var param = '{"type": 2}';
+    var object = window.btoa(param);
+    var time = Date.parse(new Date()) / 1000;
+    var sign = md5(time + object);
+    var data = {
+        "object" : object,
+        "sign" : sign,
+        "ts":time
+    }
+
+    $.ajax({
+        headers: headers,
+        url: "https://rest.paybank.com/slide/config",
+        contentType: "application/json", //必须有
+        dataType: "json", //表示返回值类型，不必须
+        data:  JSON.stringify(data),//传递数据
+        type: "post",
+        success: function(data){
+            var data = data.data;
+            mark = data.mark;
+
+            initGeetest({
+                gt: data.gt,
+                challenge: data.challenge,
+                product: "popup", // 产品形式，包括：float，embed，popup。注意只对PC版验证码有效
+                width: "340px",
+                offline: !data.success // 表示用户后台检测极验服务器是否宕机，一般不需要关注
+                // 更多配置参数请参见：http://www.geetest.com/install/sections/idx-client-sdk.html#config
+            }, handlerPopup);
+        }
+    });
+
+    var handlerPopup = function(captchaObj){
+        captchaObj.onSuccess(function(){
+            var validate = captchaObj.getValidate();
+            
+            $.ajax({
+                url: "../web/VerifyLoginServlet.php", // 进行二次验证
+                type: "post",
+                dataType: "json",
+                data: {
+                    type: "pc",
+                    username: $('#username').val(),
+                    password: $('#password').val(),
+                    geetest_challenge: validate.geetest_challenge,
+                    geetest_validate: validate.geetest_validate,
+                    geetest_seccode: validate.geetest_seccode
+                },
+                success: function(data){
+                    var head = {
+                        "Accept": "*/*",
+                        "Authorization": "Bearer ",
+                        "Client-Type": "1",
+                        "Content-Type": "application/json",
+                        "Accept-Language": "zh-CN"
+                    }
+
+                    var param_2 = '{"areaCode":"+82","fnGeetestChallenge":"'+validate.geetest_challenge+'","fnGeetestSeccode":"'+validate.geetest_seccode+'","fnGeetestValidate":"'+validate.geetest_validate+'","mark":"'+mark+'","password":"'+password+'","userName":"'+username+'","clientType":"1"}';
+                    const object = window.btoa(param_2);
+                    const time = Date.parse(new Date()) / 1000;
+                    var sign = md5(time + object);
+                    var data_2 = {
+                        "object" : object,
+                        "sign" : sign,
+                        "ts":time
+                    };
+
+                    $.ajax({
+                        headers: head,
+                        url: "https://rest.paybank.com/token/create",
+                        contentType: "application/json", //必须有
+                        dataType: "json", //表示返回值类型，不必须
+                        data:  JSON.stringify(data_2),//传递数据
+                        type: "post",
+                        success: function(data){
+                            var json_data = data.data;
+                            if(data.code == 200){
+                                var data_3 = {
+                                    j_token: json_data.token,
+                                    j_randomKey: json_data.randomKey,
+                                    linked_account: username,
+                                    result: 'a_withdraw_update'
+                                }
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '../../send_db.php',
+                                    dataType: 'text',
+                                    data: data_3,
+                                    success: function(data){
+                                        var json_data = JSON.parse(data);
+                                        if(json_data.code == 1){
+                                            alert("토큰 받기 성공.");
+                                            location.href="../a_bank_withdraw.html";
+                                        }else{
+                                            alert("서버 에러. 잠시후 다시 시도하세요.");
+                                        }
+                                    },
+                                    error: function(err){
+                                        alert('error: ' + JSON.stringify(err));
+                                    }
+                                });
+                            }else{
+                                alert("아이디 혹은 비밀번호가 잘못 되었습니다.");
+                                location.reload();
+                            }
+                        },
+                        error: function () {
+                            alert("Error...");
+                        }
+                    });
+                },
+                error: function (err) {
+                    alert(JSON.stringify(err));
+                }
+            });
+        });
+
+        $("#popup-submit").click(function () {
+            username = $('#username').val();
+            password = $('#password').val();
+            if(username == ""){
+                alert("페이뱅크 UID 입력하세요.");
+                return;
+            }
+
+            if(password == ""){
+                alert("비밀번호를 입력하세요.");
+                return;
+            }
+            username = "+82" + username.substring(1, username.length);
+            password = md5(password);
+            password = md5(password);
+            $('#popup-captcha').css("display", "block");
+            $('#popup-submit').css("display", "none");
+        });
+
+        captchaObj.appendTo("#popup-captcha");
+    }
+</script>

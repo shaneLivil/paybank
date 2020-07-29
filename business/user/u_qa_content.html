@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<script src="../js/user_top.js"></script>
+	</head>
+	
+	<body>
+		<script src="../js/user_left.js"></script>
+
+		<div class="main-content">
+			<div class="header" style="margin-bottom: 1rem;">
+				<div class="container-fluid">
+					<div class="header-body">
+						<div class="row align-items-end">
+							<div class="col">
+								<h6 class="header-pretitle">User Home</h6>
+								<h1 class="header-title">공지사항 & Q/A</h1>
+							</div>
+							<div class="col-auto d-none d-md-flex">
+								<a href="javascript:logout();" class="btn btn-primary">로그아웃</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="container-fluid">  
+				<div class="btn-group-toggle" data-toggle="buttons" style="margin-bottom: 1rem;">
+					<label class="btn btn-white active" onchange=aaaa(0);><input type="radio" name="options" id="option1" checked=""><i class="fe fe-check-circle"></i> 전체</label>
+					<label class="btn btn-white" onchange=aaaa(1);><input type="radio" name="options" id="option2"><i class="fe fe-check-circle"></i> 공지사항</label>
+					<label class="btn btn-white" onchange=aaaa(2);><input type="radio" name="options" id="option3"><i class="fe fe-check-circle"></i> Q/A</label>
+				</div>
+				<div class="kanban-item" tabindex="0" id="main_content"></div>
+			</div>
+
+			<div class="modal fade" id="modalKanbanTaskEmpty" tabindex="-1" role="dialog" aria-modal="true" style="display: none;">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content bg-lighter">
+						<div class="modal-body">
+							<div class="row">
+								<div class="col">
+									<h6 class="text-uppercase text-muted mb-3"><a href="kanban.html#!" class="text-reset">Q & A</a></h6>
+									<h2 class="mb-2" id="qna_text_title_id"></h2>
+								</div>
+								<div class="col-auto">
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+										<span aria-hidden="true">×</span>
+									</button>
+								</div>
+							</div>
+							<hr class="my-4">
+							<div class="card"><div class="card-body" id="text_content_id"></div></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+
+	<script src="../../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/libs/@shopify/draggable/lib/es5/draggable.bundle.legacy.js"></script>
+    <script src="../../assets/libs/autosize/dist/autosize.min.js"></script>
+    <script src="../../assets/libs/chart.js/dist/Chart.min.js"></script>
+    <script src="../../assets/libs/dropzone/dist/min/dropzone.min.js"></script>
+    <script src="../../assets/libs/flatpickr/dist/flatpickr.min.js"></script>
+    <script src="../../assets/libs/highlightjs/highlight.pack.min.js"></script>
+    <script src="../../assets/libs/jquery-mask-plugin/dist/jquery.mask.min.js"></script>
+    <script src="../../assets/libs/quill/dist/quill.min.js"></script>
+    <script src="../../assets/libs/select2/dist/js/select2.min.js"></script>
+    <script src="../../assets/libs/chart.js/Chart.extension.min.js"></script>
+    <script src="../../assets/js/theme.min.js"></script>
+	<script src="../js/html.js"></script>
+</html>
+
+<script>
+	var pk_id = 0;
+	var personInfoJson = "";
+	var option = 0;
+
+	ck_cookie();
+
+	function ck_cookie(){
+        var data = {
+            result: 'u_ck_cookie'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    var message = JSON.parse(json_data.message);
+                    pk_id = message.pk_id;
+                    u_qa_content();
+                }else{
+                    alert("잘못된 접근이거나. 아이디 혹은 비밀번호가 틀렸습니다.");
+                    location.href="../../index.html";
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+
+	function u_qa_content(){
+		var data = {
+			option: option,
+			result: 'u_qa_content'
+		}
+
+		$.ajax({
+			type: 'POST',
+			url: '../send_db.php',
+			dataType: 'text',
+			data: data,
+			success: function(data){
+				var json_data = JSON.parse(data);
+				if(json_data.code == 1){
+					var message = JSON.parse(json_data.message);
+					personInfoJson = message; 
+					u_qa_content_append(message);
+				}else{ alert("서버 에러. 잠시후 다시 시도하세요."); }
+			},
+			error: function(err){
+				alert('error: ' + JSON.stringify(err));
+			}
+		});
+	}
+
+	function click_qa(count){
+		$('#qna_text_title_id').html(personInfoJson[count].title);
+		$('#text_content_id').html(personInfoJson[count].content);
+	}
+
+	function aaaa(result){ 
+		option = result;
+		u_qa_content();
+	}
+
+	function logout(){
+        var data = {
+            result: 'u_logout'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    location.href="../../index.html";
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+</script>

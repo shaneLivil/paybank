@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<script src="../js/admin_top.js"></script>
+	</head>
+
+	<body>
+		<script src="../js/admin_left.js"></script>
+
+		<div class="main-content">
+			<div class="container-fluid">
+				<div class="row justify-content-center">
+					<div class="col-12 col-lg-10 col-xl-8">
+						<div class="header mt-md-5">
+							<div class="header-body">
+								<div class="row align-items-center">
+									<div class="col">
+										<h6 class="header-pretitle">Admin Home</h6>
+										<h1 class="header-title">마케팅 지원 등록</h1>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<form name="notice_form_name" id="notice_form_id" method="post" action="../send_db.php" enctype="multipart/form-data" onsubmit="return notice_function(this);">
+							<input type="hidden" name="result" value="a_add_marketing">
+							<div class="form-group">
+								<label>제목</label>
+								<input type="text" class="form-control" id="notice_title" name="notice_title">
+							</div>
+
+							<div class="form-group">
+								<label>내용</label>
+								<textarea class="form-control" id="notice_content" name="notice_content"></textarea>
+							</div>
+
+							<div class="form-group">
+								<label>이미지(jpg,jpeg,png,gif만가능)</label>
+								<input type="file" class="form-control" id="img_file" name="img_file">
+							</div>
+
+							<div class="form-group">
+								<label>설명파일(zip만가능)</label>
+								<input type="file" class="form-control" id="zip_file" name="zip_file">
+							</div>
+							<hr class="mt-4 mb-5"><hr class="mt-4 mb-5">
+							<input class="btn btn-block btn-primary" type="submit" value="등록하기" />
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+
+	<script src="../../assets/libs/jquery/dist/jquery.min.js"></script>
+    <script src="../../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/libs/@shopify/draggable/lib/es5/draggable.bundle.legacy.js"></script>
+    <script src="../../assets/libs/autosize/dist/autosize.min.js"></script>
+    <script src="../../assets/libs/chart.js/dist/Chart.min.js"></script>
+    <script src="../../assets/libs/dropzone/dist/min/dropzone.min.js"></script>
+    <script src="../../assets/libs/flatpickr/dist/flatpickr.min.js"></script>
+    <script src="../../assets/libs/highlightjs/highlight.pack.min.js"></script>
+    <script src="../../assets/libs/jquery-mask-plugin/dist/jquery.mask.min.js"></script>
+    <script src="../../assets/libs/list.js/dist/list.min.js"></script>
+    <script src="../../assets/libs/quill/dist/quill.min.js"></script>
+    <script src="../../assets/libs/select2/dist/js/select2.min.js"></script>
+    <script src="../../assets/libs/chart.js/Chart.extension.min.js"></script>
+    <script src="../../assets/js/theme.min.js"></script>
+	<script src="../js/html.js"></script>
+</html>
+
+<script>
+	var pk_id = 0;
+
+	ck_cookie();
+
+	function ck_cookie(){
+        var data = {
+            result: 'a_ck_cookie'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    var message = JSON.parse(json_data.message);
+                    pk_id = message.pk_id;
+                }else{
+                    alert("잘못된 접근이거나. 아이디 혹은 비밀번호가 틀렸습니다.");
+                    location.href="../../index.html";
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+	}
+
+	function notice_function(){
+		var notice_title = $('#notice_title').val();
+		var notice_content = $('#notice_content').val();
+		var img_array = new Array('jpg','gif','png');
+		var zip_array = new Array('zip');
+
+		if(notice_title == ""){
+			alert("제목을 입력해주세요.");
+			return false;
+		}
+
+		if(notice_content == ""){
+			alert("내용을 입력해주세요.");
+			return false;
+		}
+
+		var path_img = document.getElementById("img_file").value;
+		var pos_img = path_img.indexOf(".");
+		if(pos_img < 0) {
+			alert("확장자가 없는 이미지 파일 입니다.");
+			return false;
+		}
+
+		var ext_img = path_img.slice(path_img.indexOf(".") + 1).toLowerCase();
+		var checkExt_img = false;
+		for(var i = 0; i < img_array.length; i++) {
+			if(ext_img == img_array[i]) {
+				checkExt_img = true;
+				break;
+			}
+		}
+
+		if(checkExt_img == false) {
+			alert("이미지 파일 확장자는 jpg, gif, png만 업로드 가능합니다.");
+			return false;
+		}
+
+		var path_zip = document.getElementById("zip_file").value;
+		var pos_zip = path_zip.indexOf(".");
+
+		if(pos_zip < 0) {
+			alert("확장자가 없는 ZIP 파일 입니다.");
+			return false;
+		}
+
+		var ext_zip = path_zip.slice(path_zip.indexOf(".") + 1).toLowerCase();
+		var checkExt_zip = false;
+		for(var i = 0; i < zip_array.length; i++) {
+			if(ext_zip == zip_array[i]) {
+				checkExt_zip = true;
+				break;
+			}
+		}
+
+		if(checkExt_zip == false) {
+			alert("zip 파일 확장자는 zip만 업로드 가능합니다.");
+			return false;
+		}
+		notice_form_name.submit();
+	}
+</script>

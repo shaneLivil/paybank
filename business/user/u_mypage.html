@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <script src="../js/user_top.js"></script>
+    </head>
+
+    <body>
+        <script src="../js/user_left.js"></script>
+
+        <div class="main-content bg-fixed-bottom" style="background-image: url('assets/img/illustrations/sticky.svg');">
+            <div class="container-fluid">
+                <div class="row justify-content-center">
+                    <div class="col-12 col-lg-10 col-xl-8">
+                        <div class="header mt-md-5">
+                            <div class="header-body">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <h6 class="header-pretitle">User Home</h6>
+                                        <h1 class="header-title">나의 정보</h1>
+                                    </div>
+                                    <div class="col-auto d-none d-md-flex">
+                                        <a href="javascript:logout();" class="btn btn-primary" id="logout_id">로그아웃</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-12 col-lg-4 order-lg-2">
+                                        <div class="text-center">
+                                            <img src="../../assets/img/illustrations/happiness.jpg" alt="..." class="img-fluid mt-n5 mt-lg-0 mb-4 mr-md-n5" style="max-width: 170px;">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-lg-8 px-4 py-3 order-lg-1">
+                                        <div id="title_id" class="card-title text-muted mb-2"> 안녕하세요XXX님 (ID: XXX)</div>
+                                        <p class="text-muted" style="cursor:pointer" onclick="click_notice();">공지 사항 바로가기</p>
+                                        <span class="btn btn-primary lift" id="edit_password" data-toggle="modal" data-target="#modalMembers" onclick="modify_information();">정보 수정</span>
+                                        <span class="btn btn-primary lift" id="edit_password" data-toggle="modal" data-target="#modalMembers" onclick="modify_password();">비번 수정</span>
+                                        <span class="btn btn-primary lift" id="edit_password" data-toggle="modal" data-target="#modalMembers" onclick="modify_paybank();">PayBank 연동</span>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-12 col-xl-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="row align-items-center">
+                                                    <div class="col text-uppercase text-center text-muted ">
+                                                        <h2 class="card-title text-uppercase text-muted mb-2">추천점수</h2>
+                                                        <span class="h2 mb-0" id="left_level_id">0</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-xl-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="row align-items-center">
+                                                    <div class="col text-uppercase text-center text-muted ">
+                                                        <h2 class="card-title text-uppercase text-muted mb-2">개인점수</h2>
+                                                        <span class="h2 mb-0" id="geren_level_id">0</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-xl-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="row align-items-center">
+                                                    <div class="col text-uppercase text-center text-muted">
+                                                        <h2 class="card-title text-uppercase text-muted mb-2">스타</h2>
+                                                        <span class="h2 mb-0" id="right_level_id">0</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-xl-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="row align-items-center">
+                                                    <div class="col text-uppercase text-center text-muted">
+                                                        <h2 class="card-title text-uppercase text-muted mb-2">추천인수</h2>
+                                                        <span class="h2 mb-0" id="parent_count">0</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="modalMembers" tabindex="-1" role="dialog" aria-hidden="true"></div>
+    </body>
+
+    <script src="../../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/libs/@shopify/draggable/lib/es5/draggable.bundle.legacy.js"></script>
+    <script src="../../assets/libs/autosize/dist/autosize.min.js"></script>
+    <script src="../../assets/libs/chart.js/dist/Chart.min.js"></script>
+    <script src="../../assets/libs/dropzone/dist/min/dropzone.min.js"></script>
+    <script src="../../assets/libs/flatpickr/dist/flatpickr.min.js"></script>
+    <script src="../../assets/libs/highlightjs/highlight.pack.min.js"></script>
+    <script src="../../assets/libs/jquery-mask-plugin/dist/jquery.mask.min.js"></script>
+    <script src="../../assets/libs/quill/dist/quill.min.js"></script>
+    <script src="../../assets/libs/select2/dist/js/select2.min.js"></script>
+    <script src="../../assets/libs/chart.js/Chart.extension.min.js"></script>
+    <script src="../../assets/js/theme.min.js"></script>
+	<script src="../js/html.js"></script>
+</html>
+
+<script>
+    var pk_id = 0;
+    var user_name = "";
+    var user_id = "";
+    var user_mobile = "";
+    var p_uid = 0;
+    var ckckck = false;
+
+    ck_cookie();
+
+	function ck_cookie(){
+		var data = {
+			result: 'u_ck_cookie'
+		}
+
+		$.ajax({
+			type: 'POST',
+			url: '../send_db.php',
+			dataType: 'text',
+			data: data,
+			success: function(data){
+				var json_data = JSON.parse(data);
+				if(json_data.code == 1){
+					var message = JSON.parse(json_data.message);
+                    pk_id = message.pk_id;
+                    p_uid = message.p_uid;
+					select_information();
+				}else{
+					alert("잘못된 접근이거나. 아이디 혹은 비밀번호가 틀렸습니다.");
+					location.href="../../index.html";
+				}
+			},
+			error: function(err){
+				alert('error: ' + JSON.stringify(err));
+			}
+		});
+    }
+    
+    function select_information(){
+        var data = {
+            pk_id: pk_id,
+            result: 'u_select_information'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    user_name = json_data.user_name;
+                    user_id = json_data.user_id;
+                    user_mobile = json_data.user_mobile;
+                    $('#title_id').html('안녕하세요, '+json_data.user_name+'님 (ID: '+json_data.user_id+')');
+                    $('#left_level_id').html(json_data.support_money_tow_1);
+                    $('#geren_level_id').html(json_data.support_money_tow_2);
+                    $('#parent_count').html(json_data.parent_count);
+                    if(json_data.support_money_tow_1 > 10000000){ $('#right_level_id').html('7'); }
+                    else if(json_data.support_money_tow_1 > 3000000){ $('#right_level_id').html('6'); }
+                    else if(json_data.support_money_tow_1 > 750000){ $('#right_level_id').html('5'); }
+                    else if(json_data.support_money_tow_1 > 125000){ $('#right_level_id').html('4'); }
+                    else if(json_data.support_money_tow_1 > 25000){ $('#right_level_id').html('3'); }
+                    else if(json_data.support_money_tow_1 > 5000){ $('#right_level_id').html('2'); }
+                    else if(json_data.support_money_tow_1 > 1000){ $('#right_level_id').html('1'); }
+                }else{ alert("서버 에러. 잠시후 다시 시도하세요."); }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+
+    function modify_information(){
+        var html = '';
+        html += '<div class="modal-dialog modal-dialog-centered" role="document">';
+        html += '   <div class="modal-content">';
+        html += '       <div class="modal-card card" data-toggle="lists">';
+        html += '           <div class="card-header">';
+        html += '               <div class="row align-items-center">';
+        html += '                   <div class="col"><h4 class="card-header-title" id="exampleModalCenterTitle">정보 수정</h4></div>';
+        html += '                   <div class="col-auto"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>';
+        html += '               </div>';
+        html += '           </div>';
+        html += '           <div class="card-body" style="max-height: 550px;">';
+        html += '               <div class="form-row">';
+        html += '                   <div class="col-12 col-md-12 mb-3">';
+        html += '                       <div style="font-size: 12px;color: #899db7;margin: 0;">성함</div>';
+        html += '                       <input type="text" class="form-control" id="m_user_name" placeholder="성함" value="'+user_name+'">';
+        html += '                   </div>';
+        html += '               </div>';
+        html += '               <div class="form-row">';
+        html += '                   <div class="col-12 col-md-12 mb-3">';
+        html += '                       <div style="font-size: 12px;color: #899db7;margin: 0;">핸드폰</div>';
+        html += '                       <input type="text" class="form-control" id="m_user_mobile" placeholder="핸드폰" value="'+user_mobile+'">';
+        html += '                   </div>';
+        html += '               </div>';
+        html += '			    <div style="text-align: center;"><button class="btn btn-primary" onclick=information_action();>수정 하기</button></div>';
+        html += '           </div>';
+        html += '       </div>';
+        html += '   </div>';
+        html += '</div>';
+        $('#modalMembers').html(html);
+    }
+
+    function information_action(){
+        var m_user_name = $('#m_user_name').val().trim();
+        var m_user_mobile = $('#m_user_mobile').val().trim();
+
+        if(m_user_name == ""){
+            alert("성함을 입력하세요.");
+            return;
+        }
+
+        if(m_user_mobile == ""){
+            alert("핸드폰 번호를 입력하세요.");
+            return; 
+        }
+
+        if(user_name == m_user_name && m_user_mobile == user_mobile){
+            alert("변경된 데이터가 없습니다.");
+            return;
+        }
+
+        var data = {
+            pk_id: pk_id,
+            m_user_name: m_user_name,
+            m_user_mobile: m_user_mobile,
+            result: 'u_information_action'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    alert("정보가 변경 되었습니다.");
+                    $('#modalMembers').modal("hide");
+                    select_information();
+                }else{ alert("서버 에러. 잠시후 다시 시도하세요."); }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+
+    function modify_password(){
+        var html = '';
+        html += '<div class="modal-dialog modal-dialog-centered" role="document">';
+        html += '   <div class="modal-content">';
+        html += '       <div class="modal-card card" data-toggle="lists">';
+        html += '           <div class="card-header">';
+        html += '               <div class="row align-items-center">';
+        html += '                   <div class="col"><h4 class="card-header-title" id="exampleModalCenterTitle">비밀번호 수정</h4></div>';
+        html += '                   <div class="col-auto"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>';
+        html += '               </div>';
+        html += '           </div>';
+        html += '           <div class="card-body" style="max-height: 550px;">';
+        html += '               <div class="form-row">';
+        html += '                   <div class="col-12 col-md-12 mb-3">';
+        html += '                       <div style="font-size: 12px;color: #899db7;margin: 0;">기존 비밀번호</div>';
+        html += '                       <input type="password" class="form-control" id="m_o_password" placeholder="기존 비밀번호" value="">';
+        html += '                   </div>';
+        html += '               </div>';
+        html += '               <div class="form-row">';
+        html += '                   <div class="col-12 col-md-12 mb-3">';
+        html += '                       <div style="font-size: 12px;color: #899db7;margin: 0;">새 비밀번호</div>';
+        html += '                       <input type="password" class="form-control" id="m_n_password" placeholder="새 비밀번호" value="">';
+        html += '                   </div>';
+        html += '               </div>';
+        html += '               <div class="form-row">';
+        html += '                   <div class="col-12 col-md-12 mb-3">';
+        html += '                       <div style="font-size: 12px;color: #899db7;margin: 0;">새 비밀번호 확인</div>';
+        html += '                       <input type="password" class="form-control" id="m_n_password_ck" placeholder="새 비밀번호 확인" value="">';
+        html += '                   </div>';
+        html += '               </div>';
+        html += '			    <div style="text-align: center;"><button class="btn btn-primary" onclick=password_action();>수정 하기</button></div>';
+        html += '           </div>';
+        html += '       </div>';
+        html += '   </div>';
+        html += '</div>';
+        $('#modalMembers').html(html);
+    }
+
+    function password_action(){
+        var m_o_password = $('#m_o_password').val().trim();
+        var m_n_password = $('#m_n_password').val().trim();
+        var m_n_password_ck = $('#m_n_password_ck').val().trim();
+
+        if(m_o_password == ""){
+            alert("기존 비밀번호를 입력하세요.");
+            return;
+        }
+
+        if(m_n_password == ""){
+            alert("새 비밀번호를 입력하세요.");
+            return;
+        }
+
+        if(m_n_password_ck == ""){
+            alert("비밀번호 확인을 입력하세요.");
+            return;
+        }
+
+        if(m_n_password != m_n_password_ck){
+            alert("입력하신 비밀번호 랑 비밀번호 확인이 일치하지 않습니다.");
+            return;
+        }
+
+        var data = {
+            pk_id: pk_id,
+            m_o_password: m_o_password,
+            m_n_password: m_n_password,
+            result: 'u_password_action'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    alert("비밀번호 수정 성공.");
+                    $('#modalMembers').modal("hide");
+                    ck_cookie();
+                }else{
+                    if(json_data.message == 'FAIL'){ alert("서버 에러. 잠시후 다시 시도하세요."); }
+                    else if(json_data.message == 'NO'){ alert("기존 비밀번호가 일치하지 않습니다."); }
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+
+    function modify_paybank(){
+        if(p_uid == 0){
+            var html = '';
+            html += '<div class="modal-dialog modal-dialog-centered" role="document">';
+            html += '	<div class="modal-content">';
+            html += '		<div class="modal-card card" data-toggle="lists">';
+            html += '			<div class="card-body">';
+            html += '				<div class="row justify-content-center">';
+            html += '					<div class="">';
+            html += '						<h1 class="display-4 text-center mb-3">PayBank APP연동</h1>';
+            html += '						<p class="text-muted text-center mb-5">PayBank 지갑으로 연동하기.</p>';
+            html += '						<div class="form-group">';
+            html += '							<div class="input-group input-group-merge mb-3">';
+            html += '								<input type="text" maxlength="30" id="idcard_id" class="form-control" style="display: none;">';
+            html += '								<input type="number" maxlength="15" id="number_id" class="form-control" placeholder="PayBank UID" value="'+p_uid+'">';
+            html += '								<div class="input-group-append">';
+            html += '									<div style="padding-left: 5px;"><button class="btn btn-primary" type="button" id="code_btn" onclick="queren_button()">PayBank UID 확인</button></div>';
+            html += '								</div>';
+            html += '							</div>';
+            html += '						</div>';
+            html += '						<div class="form-group"><input type="number" maxlength="6" id="google_otp" oninput="maxLengthCheck(this)" class="form-control" placeholder="Google OTP"></div>';
+            html += '						<button class="btn btn-lg btn-block btn-primary mb-3" onclick="queren_uid();" id="lian_dong">연동하기</button>';
+            html += '					</div>';
+            html += '				</div>';
+            html += '			</div>';
+            html += '		</div>';
+            html += '	</div>';
+            html += '</div>';
+            $('#modalMembers').html(html);
+        }else{
+            var html = '';
+            html += '<div class="modal-dialog modal-dialog-centered" role="document">';
+            html += '	<div class="modal-content">';
+            html += '		<div class="modal-card card" data-toggle="lists">';
+            html += '			<div class="card-body">';
+            html += '				<div class="row justify-content-center">';
+            html += '					<div class="">';
+            html += '						<h1 class="display-4 text-center mb-3">PayBank APP연동</h1>';
+            html += '						<p class="text-muted text-center mb-5">PayBank 지갑으로 연동하기.</p>';
+            html += '						<div class="form-group">';
+            html += '							<div class="input-group input-group-merge mb-3">';
+            html += '								<input type="number" maxlength="15" disabled id="number_id" class="form-control" placeholder="PayBank UID" value="'+p_uid+'">';
+            html += '								<div class="input-group-append">';
+            html += '									<div style="padding-left: 5px;"><button class="btn btn-primary" type="button" id="code_btn" disabled onclick="queren_button()">PayBank UID 확인</button></div>';
+            html += '								</div>';
+            html += '							</div>';
+            html += '						</div>';
+            html += '						<div class="form-group"><input type="number" maxlength="6" id="google_otp" disabled oninput="maxLengthCheck(this)" class="form-control" placeholder="Google OTP"></div>';
+            html += '						<button class="btn btn-lg btn-block btn-primary mb-3" disabled>연동하기</button>';
+            html += '					</div>';
+            html += '				</div>';
+            html += '			</div>';
+            html += '		</div>';
+            html += '	</div>';
+            html += '</div>';
+            $('#modalMembers').html(html);
+        }
+    }
+
+    function queren_button(){
+        var number_id = $('#number_id').val().trim();
+        if(number_id == "" || number_id == 0){
+            alert("PayBank UID를 입력하세요.");
+            return;
+        }
+
+        var data = {
+            p_uid: number_id,
+            pk_id: pk_id,
+            result: 'u_queren_button'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    if(json_data.idcard == 0){
+                        alert("PayBank KYC 인증이 안되어 있습니다. 먼저 KYC 인증을 하고 연동 해주세요.");
+                    }else{
+                        if(confirm('PayBank(UID: ' + json_data.id + ', 계정: ' + json_data.user_name + ') 연동 하시겠습니??')){
+                            $("#number_id").attr("disabled",true).attr("readonly",false);
+                            $('#code_btn').attr('disabled', true);
+                            ckckck = true;
+                            $('#idcard_id').val(json_data.idcard);
+                        }
+                    }
+                }else{
+                    if(json_data.message == 'FAIL'){ alert("서버 에러. 잠시후 다시 시도하세요."); }
+                    else if(json_data.message == 'NO'){ alert("PayBank에 존재 하지 않는 UID입니다."); }
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+
+    function queren_uid(){
+        var paybank_uid = $('#number_id').val().trim();
+        var google_otp = $('#google_otp').val().trim();
+        var idcard_id = $('#idcard_id').val().trim();
+        
+        if(paybank_uid == ''){
+            alert("PayBank UID를 입력하세요.");
+            return;
+        }
+
+        if(google_otp == ''){
+            alert("구글 OTP를 입력하세요.");
+            return;
+        }
+
+        if(ckckck == false){
+            alert("PayBank UID를 체크하세요.");
+            return;
+        }
+
+        var data = {
+            paybank_uid: paybank_uid,
+            google_otp: google_otp,
+            idcard_id: idcard_id,
+            pk_id: pk_id,
+            result: 'u_queren_uid'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    alert("연동 성공");
+                    p_uid = paybank_uid;
+                    ckckck = false;
+                    $('#modalMembers').modal("hide");
+                }else{
+                    if(json_data.message == 'FAIL'){ alert("서버 에러. 잠시후 다시 시도하세요."); }
+                    else if(json_data.message == 'OTP'){ alert("구글 OTP가 일치 하지 않습니다."); }
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+
+    function maxLengthCheck(object){
+        if(object.value.length > object.maxLength) {
+            object.value = object.value.slice(0, object.maxLength);
+        }
+    }
+
+    function click_notice(){
+        location.href="./u_qa_content.html";
+    }
+
+    function logout(){
+        var data = {
+            result: 'u_logout'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    location.href="../../index.html";
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+</script>

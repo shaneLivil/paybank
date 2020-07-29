@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <style>
+            * {margin: 0; padding: 0;}
+            
+            .tree ul {
+                padding-top: 20px; position: relative;
+                
+                transition: all 0.5s;
+                -webkit-transition: all 0.5s;
+                -moz-transition: all 0.5s;
+            }
+            
+            .tree li {
+                float: left; text-align: center;
+                list-style-type: none;
+                position: relative;
+                padding: 20px 5px 0 5px;
+                
+                transition: all 0.5s;
+                -webkit-transition: all 0.5s;
+                -moz-transition: all 0.5s;
+            }
+            
+            /*We will use ::before and ::after to draw the connectors*/
+            
+            .tree li::before, .tree li::after{
+                content: '';
+                position: absolute; top: 0; right: 50%;
+                border-top: 1px solid #ccc;
+                width: 50%; height: 20px;
+            }
+            .tree li::after{
+                right: auto; left: 50%;
+                border-left: 1px solid #ccc;
+            }
+            
+            /*We need to remove left-right connectors from elements without 
+            any siblings*/
+            .tree li:only-child::after, .tree li:only-child::before {
+                display: none;
+            }
+            
+            /*Remove space from the top of single children*/
+            .tree li:only-child{ padding-top: 0;}
+            
+            /*Remove left connector from first child and 
+            right connector from last child*/
+            .tree li:first-child::before, .tree li:last-child::after{
+                border: 0 none;
+            }
+            /*Adding back the vertical connector to the last nodes*/
+            .tree li:last-child::before{
+                border-right: 1px solid #ccc;
+                border-radius: 0 5px 0 0;
+                -webkit-border-radius: 0 5px 0 0;
+                -moz-border-radius: 0 5px 0 0;
+            }
+            .tree li:first-child::after{
+                border-radius: 5px 0 0 0;
+                -webkit-border-radius: 5px 0 0 0;
+                -moz-border-radius: 5px 0 0 0;
+            }
+            
+            /*Time to add downward connectors from parents*/
+            .tree ul ul::before{
+                content: '';
+                position: absolute; top: 0; left: 50%;
+                border-left: 1px solid #ccc;
+                width: 0; height: 20px;
+            }
+            
+            .tree li a{
+                border: 1px solid #ccc;
+                padding: 5px 10px;
+                text-decoration: none;
+                color: #666;
+                font-family: arial, verdana, tahoma;
+                font-size: 11px;
+                display: inline-block;
+                
+                border-radius: 5px;
+                -webkit-border-radius: 5px;
+                -moz-border-radius: 5px;
+                
+                transition: all 0.5s;
+                -webkit-transition: all 0.5s;
+                -moz-transition: all 0.5s;
+            }
+            
+            /*Time for some hover effects*/
+            /*We will apply the hover effect the the lineage of the element also*/
+            .tree li a:hover, .tree li a:hover+ul li a {
+                background: #c8e4f8; color: #000; border: 1px solid #94a0b4;
+            }
+            /*Connector styles on hover*/
+            .tree li a:hover+ul li::after, 
+            .tree li a:hover+ul li::before, 
+            .tree li a:hover+ul::before, 
+            .tree li a:hover+ul ul::before{
+                border-color:  #94a0b4;
+            }
+        </style>
+    </head>
+
+    <body>    
+    <div class="tree" id="tree" style="width:5000000px;">
+        <ul>
+            <li id="divParent">
+                <a href=""><h1>나의 후원인</h1></a>
+                <ul id="main_content"></ul>
+            </li>
+        </ul>
+    </div>
+    </body>
+
+    <script src="../../assets/libs/jquery/dist/jquery.min.js"></script>
+    <script src="../../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/libs/@shopify/draggable/lib/es5/draggable.bundle.legacy.js"></script>
+    <script src="../../assets/libs/autosize/dist/autosize.min.js"></script>
+    <script src="../../assets/libs/chart.js/dist/Chart.min.js"></script>
+    <script src="../../assets/libs/dropzone/dist/min/dropzone.min.js"></script>
+    <script src="../../assets/libs/flatpickr/dist/flatpickr.min.js"></script>
+    <script src="../../assets/libs/highlightjs/highlight.pack.min.js"></script>
+    <script src="../../assets/libs/jquery-mask-plugin/dist/jquery.mask.min.js"></script>
+    <script src="../../assets/libs/list.js/dist/list.min.js"></script>
+    <script src="../../assets/libs/quill/dist/quill.min.js"></script>
+    <script src="../../assets/libs/select2/dist/js/select2.min.js"></script>
+    <script src="../../assets/libs/chart.js/Chart.extension.min.js"></script>
+    <script src="../../assets/js/theme.min.js"></script>
+	<script src="../js/html.js"></script>
+</html>
+
+<form name="frm" action="./u_registration.html" method="get">
+    <input type="hidden" name="i_parent_id" id="i_parent_id" value="" />
+    <input type="hidden" name="i_support_id" id="i_support_id" value="" />
+    <input type="hidden" name="i_count" id="i_count" value="" />
+</form>
+
+<script>
+    var pk_id = 0;
+    var ckck = true;
+
+    ck_cookie();
+
+    function ck_cookie(){
+        var data = {
+            result: 'u_ck_cookie'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    var message = JSON.parse(json_data.message);
+                    pk_id = message.pk_id;
+                    $('#main_content').attr('id', 'parent_'+pk_id+'_list');
+                    u_support_genealogy(pk_id);
+                }else{
+                    alert("잘못된 접근이거나. 아이디 혹은 비밀번호가 틀렸습니다.");
+                    location.href="../../index.html";
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+
+    function u_support_genealogy(j_pk_id, j_user_id, j_color){
+        var data = {
+            result: 'u_support_genealogy',
+            j_pk_id: j_pk_id
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    var data = JSON.parse(json_data.message);
+                    if(data.length == 1){
+                        var color = "";
+                        if(data[0].support_1 > 50000 && data[0].support_2 > 50000){ color = "#A566FF"; }
+                        else if(data[0].support_1 > 20000 && data[0].support_2 > 20000){ color = "#2A365C"; }
+                        else if(data[0].support_1 > 10000 && data[0].support_2 > 10000){ color = "#0054FF"; }
+                        else if(data[0].support_1 > 5000 && data[0].support_2 > 5000){ color = "#007644"; }
+                        else if(data[0].support_1 > 2000 && data[0].support_2 > 2000){ color = "#FFE400"; }
+                        else if(data[0].support_1 > 900 && data[0].support_2 > 900){ color = "#F3753A"; }
+                        else if(data[0].support_1 > 300 && data[0].support_2 > 300){ color = "#F3753A"; }
+                        else{ if(data[0].member_rock == 1){ color = "#C4B73B"; } }
+
+                        if(data[0].line == 0){
+                            var html = '';
+                            if(ckck){
+                                html += '<li id="parent_'+data[0].pk_id+'_list"><a style="background-color: '+color+'">아이디: '+data[0].user_id+'</a></li>';
+                                html += '<li><a href=javascript:registration(1,'+pk_id+','+j_pk_id+');>회원등록</a></li>';
+                            }else{
+                                html += '<a style="background-color: '+j_color+'">아이디: '+j_user_id+'</a>';
+                                html += '<ul>';
+                                html += '<li id="parent_'+data[0].pk_id+'_list"><a style="background-color: '+color+'">아이디: '+data[0].user_id+'</li>';
+                                html += '<li><a href=javascript:registration(1,'+pk_id+','+j_pk_id+');>회원등록</a></li>';
+                                html += '</ul>';
+                            }
+                            $('#parent_'+j_pk_id+'_list').html(html);
+                            u_support_genealogy(data[0].pk_id,data[0].user_id,color);
+                        }else{
+                            var html = '';
+                            if(ckck){
+                                html += '<li><a href=javascript:registration(0,'+pk_id+','+j_pk_id+');>회원등록</a></li>';
+                                html += '<li id="parent_'+data[0].pk_id+'_list"><a style="background-color: '+color+'">아이디: '+data[0].user_id+'</li>';
+                            }else{
+                                html += '<a style="background-color: '+j_color+'">아이디: '+j_user_id+'</a>';
+                                html += '<ul>';
+                                html += '<li><a href=javascript:registration(0,'+pk_id+','+j_pk_id+');>회원등록</a></li>';
+                                html += '<li id="parent_'+data[0].pk_id+'_list"><a style="background-color: '+color+'">아이디: '+data[0].user_id+'</a></li>';
+                                html += '</ul>';
+                            }
+                            $('#parent_'+j_pk_id+'_list').html(html);
+                            u_support_genealogy(data[0].pk_id,data[0].user_id,color);
+                        }
+                    }else{
+                        var html = '';
+                        if(ckck){
+                            for(var i=0; i<2; i++){
+                                var color = "";
+                                if(data[i].support_1 > 50000 && data[i].support_2 > 50000){ color = "#A566FF"; }
+                                else if(data[i].support_1 > 20000 && data[i].support_2 > 20000){ color = "#2A365C"; }
+                                else if(data[i].support_1 > 10000 && data[i].support_2 > 10000){ color = "#0054FF"; }
+                                else if(data[i].support_1 > 5000 && data[i].support_2 > 5000){ color = "#007644"; }
+                                else if(data[i].support_1 > 2000 && data[i].support_2 > 2000){ color = "#FFE400"; }
+                                else if(data[i].support_1 > 900 && data[i].support_2 > 900){ color = "#F3753A"; }
+                                else if(data[i].support_1 > 300 && data[i].support_2 > 300){ color = "#F3753A"; }
+                                else{ if(data[i].member_rock == 1){ color = "#C4B73B"; } }
+
+                                html += '<li id="parent_'+data[i].pk_id+'_list">';
+                                html += '   <a style="background-color: '+color+'">아이디: '+data[i].user_id+'</a>';
+                                html += '</li>';
+                                u_support_genealogy(data[i].pk_id,data[i].user_id,color);
+                            }
+                        }else{
+                            html += '<a style="background-color: '+j_color+'">아이디: '+j_user_id+'</a>';
+                            html += '       <ul>';
+                            for(var i=0; i<2; i++){
+                                var color = "";
+                                if(data[i].support_1 > 50000 && data[i].support_2 > 50000){ color = "#A566FF"; }
+                                else if(data[i].support_1 > 20000 && data[i].support_2 > 20000){ color = "#2A365C"; }
+                                else if(data[i].support_1 > 10000 && data[i].support_2 > 10000){ color = "#0054FF"; }
+                                else if(data[i].support_1 > 5000 && data[i].support_2 > 5000){ color = "#007644"; }
+                                else if(data[i].support_1 > 2000 && data[i].support_2 > 2000){ color = "#FFE400"; }
+                                else if(data[i].support_1 > 900 && data[i].support_2 > 900){ color = "#F3753A"; }
+                                else if(data[i].support_1 > 300 && data[i].support_2 > 300){ color = "#FF0000"; }
+                                else{ if(data[i].member_rock == 1){ color = "#C4B73B"; } }
+
+                                html += '<li id="parent_'+data[i].pk_id+'_list">';
+                                html += '   <a style="background-color: '+color+'">아이디: '+data[i].user_id+'</a>';
+                                html += '</li>';
+                                u_support_genealogy(data[i].pk_id,data[i].user_id,color); // cho10
+                            }
+                            html += '       </ul>';
+                        }
+                        $('#parent_'+j_pk_id+'_list').html(html);
+                    }
+                    ckck = false;
+                }else{
+                    if(json_data.message == 'FAIL'){ alert("서버 에러. 잠시후 다시 시도하세요."); }
+                    else if(json_data.message == 'NoData'){
+                        if(ckck){
+                            var html = '';
+                            for(var i=0; i<2; i++){
+                                html += '<li id="parent_'+data[i].pk_id+'_list">';
+                                html += '   <a href=javascript:registration('+i+','+pk_id+','+j_pk_id+');>회원등록</a>';
+                                html += '</li>';
+                            }
+                            $('#parent_'+j_pk_id+'_list').html(html);
+                        }else{
+                            var html = '';
+                            html += '<a style="background-color: '+j_color+'">아이디: '+j_user_id+'</a>';
+                            html += '       <ul>';
+                            for(var i=0; i<2; i++){
+                                html += '<li id="parent_'+data[i].pk_id+'_list">';
+                                html += '   <a href=javascript:registration('+i+','+pk_id+','+j_pk_id+');>회원등록</a>';
+                                html += '</li>';
+                            }
+                            html += '       </ul>';
+                            $('#parent_'+j_pk_id+'_list').html(html);
+                        }
+                    }
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+
+    function registration(j_count, j_parent_id, j_support_id){
+        var fr = document.frm;
+        fr.action = "./u_registration.html";
+        fr.target = "winName";
+        fr.i_parent_id.value = j_parent_id;
+        fr.i_support_id.value = j_support_id;
+        fr.i_count.value = j_count;
+        frm.submit();
+    }
+</script>

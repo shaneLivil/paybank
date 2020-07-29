@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<script src="../js/user_top.js"></script>
+	</head>
+
+	<body>
+		<script src="../js/user_left.js"></script>
+
+		<div class="main-content">
+			<div class="header">
+				<div class="container-fluid">
+					<div class="header-body">
+						<div class="row align-items-end">
+							<div class="col">
+								<h6 class="header-pretitle">User Home</h6>
+								<h1 class="header-title">지갑 관리</h1>
+							</div>
+							<div class="col-auto d-none d-md-flex">
+								<a href="javascript:logout();" class="btn btn-primary">로그아웃</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="container-fluid">
+				<div class="card" data-toggle="lists">
+					<div class="table-responsive">
+						<table class="table table-sm table-nowrap card-table">
+							<thead>
+								<tr>
+									<th style="text-align: center;">사용자 아이디</th>
+									<th style="text-align: center;">수당받은 수량($)</th>
+									<th style="text-align: center;">CSP 포인트</th>
+									<th style="text-align: center;">출금 수량($)</th>
+									<th style="text-align: center;">상태</th>
+									<th style="text-align: center;">출금시간</th>
+									<th style="text-align: center;">수당 받은 시간</th>
+									<th style="text-align: center;">--</th>
+								</tr>
+							</thead>
+
+							<tbody class="list" id="u_wallet_list">
+								<tr><td class="orders-date table table-sm table-nowrap card-table" colspan="8" align="center">No Data</td></tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="modalMembers" tabindex="-1" role="dialog" aria-hidden="true"></div>
+	</body>
+
+	<script src="../../assets/libs/jquery/dist/jquery.min.js"></script>
+    <script src="../../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/libs/@shopify/draggable/lib/es5/draggable.bundle.legacy.js"></script>
+    <script src="../../assets/libs/autosize/dist/autosize.min.js"></script>
+    <script src="../../assets/libs/chart.js/dist/Chart.min.js"></script>
+    <script src="../../assets/libs/dropzone/dist/min/dropzone.min.js"></script>
+    <script src="../../assets/libs/flatpickr/dist/flatpickr.min.js"></script>
+    <script src="../../assets/libs/highlightjs/highlight.pack.min.js"></script>
+    <script src="../../assets/libs/jquery-mask-plugin/dist/jquery.mask.min.js"></script>
+    <script src="../../assets/libs/list.js/dist/list.min.js"></script>
+    <script src="../../assets/libs/quill/dist/quill.min.js"></script>
+    <script src="../../assets/libs/select2/dist/js/select2.min.js"></script>
+    <script src="../../assets/libs/chart.js/Chart.extension.min.js"></script>
+    <script src="../../assets/js/theme.min.js"></script>
+	<script src="../js/html.js"></script>
+</html>
+
+<script>
+	var pk_id = 0;
+
+	ck_cookie();
+
+	function ck_cookie(){
+		// var aa = "000000000000000000000000000000000000000000000000000000";
+		// alert(aa.length);
+        var data = {
+            result: 'u_ck_cookie'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    var message = JSON.parse(json_data.message);
+                    pk_id = message.pk_id;
+                    u_wallet();
+                }else{
+                    alert("잘못된 접근이거나. 아이디 혹은 비밀번호가 틀렸습니다.");
+                    location.href="../../index.html";
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+	}
+	
+	function u_wallet(){
+		var data = {
+			pk_id: pk_id,
+			result: 'u_wallet'
+		}
+
+		$.ajax({
+			type: 'POST',
+			url: '../send_db.php',
+			dataType: 'text',
+			data: data,
+			success: function(data){
+				var json_data = JSON.parse(data);
+				if(json_data.code == 1){
+					var message = JSON.parse(json_data.message);
+					u_wallet_append(message);
+				}else{ alert("서버 에러. 잠시후 다시 시도하세요."); }
+			},
+			error: function(err){
+				alert('error: ' + JSON.stringify(err));
+			}
+		});
+	}
+
+	function withdraw_action(j_pk_id){
+		var html = '';
+        html += '<div class="modal-dialog modal-dialog-centered" role="document">';
+        html += '   <div class="modal-content">';
+        html += '       <div class="modal-card card" data-toggle="lists">';
+        html += '           <div class="card-header">';
+        html += '               <div class="row align-items-center">';
+        html += '                   <div class="col"><h4 class="card-header-title" id="exampleModalCenterTitle">출금신청</h4></div>';
+        html += '                   <div class="col-auto"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>';
+        html += '               </div>';
+        html += '           </div>';
+        html += '           <div class="card-body" style="max-height: 550px;">';
+        html += '               <div class="form-row">';
+		html += '                   <div class="col-12 col-md-12 mb-3">';
+		html += '                       <input type="text" class="form-control" id="m_j_pk_id" style="display: none;" disabled value="'+j_pk_id+'">';
+		html += '                       <div style="font-size: 12px;color: #899db7;margin: 0;">출금금액(출금수수 PAX: 2, 사업소세: 3.3%)</div>';
+        html += '                       <input type="number" class="form-control" id="w_price" placeholder="출금금액" value="">';
+        html += '                   </div>';
+        html += '               </div>';
+        html += '			    <div style="text-align: center;"><button class="btn btn-primary" id="wallet_id" onclick=withdraw_action_2();>출금하기</button></div>';
+        html += '           </div>';
+        html += '       </div>';
+        html += '   </div>';
+        html += '</div>';
+		$('#modalMembers').html(html);
+	}
+
+	function withdraw_action_2(){
+		var m_j_pk_id = $('#m_j_pk_id').val().trim();
+		var w_price = $('#w_price').val().trim();
+		var date = new Date();
+		date = date.getHours().toString();
+		if(date == 0){
+			alert("출금신청은 오전 09시부터 저녁 11시59분 까지 가능합니다");
+			return;
+		}
+		if(date < 9){
+			alert("출금신청은 오전 09시부터 저녁 11시59분 까지 가능합니다");
+			return;
+		}
+
+		if(w_price == "" || w_price == 0){
+			alert("출금액을 입력하세요.");
+			return;
+		}
+
+		if(w_price < 10){
+			alert("최소 출금은 10 PAX부터 출금 가능 합니다.");
+			return;
+		}
+
+		if(confirm('잔액을 PayBank로 출금 하시겠습니가??')){
+			$('#wallet_id').attr('disabled', true);
+			var data = {
+				pk_id: pk_id,
+				w_price: w_price,
+				result: 'u_withdraw_action'
+			}
+
+			$.ajax({
+				type: 'POST',
+				url: '../send_db.php',
+				dataType: 'text',
+				data: data,
+				success: function(data){
+					var json_data = JSON.parse(data);
+					if(json_data.code == 1){
+						alert("출금 신청 되었습니다. 심사를 기다려 주세요");
+						$('#modalMembers').modal("hide");
+					}else{
+						if(json_data.message == 'FAIL'){ alert("서버 에러. 잠시후 다시 시도하세요."); }
+						else if(json_data.message == 'NO'){ alert("PayBank 연동된 계정만 출금신청 할수 있습니다."); }
+						else if(json_data.message == 'YOU'){ alert("현재 심사중입니다 심사가 끝나고 다시 출금신청 하세요."); }
+						else if(json_data.message == 'NNO'){ alert("잘못된 접근입니다. 관리자에게 문의 주세요."); }
+						else if(json_data.message == 'NB'){ alert("잔액이 부족, 출금 가능한 잔액: " + json_data.cccc); }
+						else if(json_data.message == 'NNN'){ alert("최근 3개월 이내 월렛카드 구매 내역이 없으므로 출금 불가합니다."); }
+						$('#wallet_id').attr('disabled', false);
+					}
+				},
+				error: function(err){
+					alert('error: ' + JSON.stringify(err));
+				}
+			});
+		}
+	}
+
+	function logout(){
+        var data = {
+            result: 'u_logout'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    location.href="../../index.html";
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+</script>

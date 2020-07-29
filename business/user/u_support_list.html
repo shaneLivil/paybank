@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <script src="../js/user_top.js"></script>
+    </head>
+
+    <body>
+        <script src="../js/user_left.js"></script>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="container-fluid">
+                    <div class="header-body">
+                        <div class="row align-items-end">
+                            <div class="col">
+                                <h6 class="header-pretitle">User Home</h6>
+                                <h1 class="header-title">후원인 리스트</h1>
+                            </div>
+
+                            <div class="col-auto d-none d-md-flex">
+                                <a href="javascript:logout();" class="btn btn-primary">로그아웃</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-fluid">
+                <span style="cursor:pointer; width: 5%; margin-bottom: 1%;"><button type="button" class="btn btn-primary btn-sm mb-2 mr-4" onclick="genealogy_list();" style="margin-bottom: 1.375rem!important;">후원인 계보도 보기</button></span>
+                <div class="card" data-toggle="lists">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-nowrap card-table">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: center;">사용자 이름</th>
+                                    <th style="text-align: center;">사용자 아이디</th>
+                                    <th style="text-align: center;">사용자 번호</th>
+                                    <th style="text-align: center;">회원가입 여부</th>
+                                    <th style="text-align: center;">등록시간</th>
+                                    <th style="text-align: center;">수당 및 점수시간</th>
+                                    <th style="text-align: center;">상세보기</th>
+                                </tr>
+                            </thead>
+                            <tbody class="list" id="u_support_list">
+                                <td class="orders-date table table-sm table-nowrap card-table" colspan="7" align="center">No Data</td>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+
+    <script src="../../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/libs/@shopify/draggable/lib/es5/draggable.bundle.legacy.js"></script>
+    <script src="../../assets/libs/autosize/dist/autosize.min.js"></script>
+    <script src="../../assets/libs/chart.js/dist/Chart.min.js"></script>
+    <script src="../../assets/libs/dropzone/dist/min/dropzone.min.js"></script>
+    <script src="../../assets/libs/flatpickr/dist/flatpickr.min.js"></script>
+    <script src="../../assets/libs/highlightjs/highlight.pack.min.js"></script>
+    <script src="../../assets/libs/jquery-mask-plugin/dist/jquery.mask.min.js"></script>
+    <script src="../../assets/libs/quill/dist/quill.min.js"></script>
+    <script src="../../assets/libs/select2/dist/js/select2.min.js"></script>
+    <script src="../../assets/libs/chart.js/Chart.extension.min.js"></script>
+    <script src="../../assets/js/theme.min.js"></script>
+	<script src="../js/html.js"></script>
+</html>
+
+<form name="frm" action="./u_support_details.html" method="get">
+    <input type="hidden" name="j_pk_id" id="j_pk_id" value="" />
+</form>
+
+<script>
+    var pk_id = 0;
+
+    ck_cookie();
+
+    function ck_cookie(){
+        var data = {
+            result: 'u_ck_cookie'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    var message = JSON.parse(json_data.message);
+                    pk_id = message.pk_id;
+                    u_support_list();
+                }else{
+                    alert("잘못된 접근이거나. 아이디 혹은 비밀번호가 틀렸습니다.");
+                    location.href="../../index.html";
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+
+    function u_support_list(){
+        var data = {
+            pk_id: pk_id,
+            result: 'u_support_list'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    var message = JSON.parse(json_data.message);
+                    u_support_append(message);
+                }else{
+                    if(json_data.message == 'FAIL'){ alert("서버 에러. 잠시후 다시 시도하세요."); }
+                    else if(json_data.message == 'NoData'){
+                        $('#u_support_list').html('<td class="orders-date table table-sm table-nowrap card-table" colspan="7" align="center">No Data</td>');
+                    }
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+
+    function u_support_details(j_pk_id){
+        var fr = document.frm;
+        fr.action = "u_support_details.html";
+        fr.target = "winName";
+        fr.j_pk_id.value = j_pk_id;
+        frm.submit();
+    }
+
+    function genealogy_list(){
+        window.open('./u_support_genealogy.html', 'newWindow');
+    }
+
+    function logout(){
+        var data = {
+            result: 'u_logout'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    location.href="../../index.html";
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+</script>

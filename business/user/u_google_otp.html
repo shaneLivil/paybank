@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<script src="../js/user_top.js"></script>
+	</head>
+
+	<body>
+		<script src="../js/user_left.js"></script>
+
+		<div class="main-content">
+			<div class="container-fluid">
+				<div class="row justify-content-center">
+					<div class="col-12 col-lg-10 col-xl-8">
+						<div class="header mt-md-5">
+							<div class="header-body">
+								<div class="row align-items-center">
+									<div class="col">
+										<h6 class="header-pretitle">Goole Certification</h6>
+										<h1 class="header-title">구글 OTP 연동 & 해제</h1>
+									</div>
+									<div class="col-auto d-none d-md-flex">
+										<a href="javascript:logout();" class="btn btn-primary">로그아웃</a>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="card card-body p-5">
+							<div class="container-fluid">
+								<div class="row">
+									<div class="col-12" id="otp_body_id">
+										<div class="header-body">
+											<h1 class="header-title">OTP 연동</h1>
+											<p class="header-subtitle" style="font-size:11px;">구글 OTP App 실행, 안드로이드 휴대폰은 새 계정 추가, 아이폰은 "+" 클릭, QR코드 스캔 혹은 수동으로 Key추가 하기(<a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2" target="_blank">1. Google Play에서 다운로드</a>, <a href="http://itunes.apple.com/us/app/nuan-dao/id388497605" target="_blank">2. 앱스토에서 다운로드</a>)</p>
+										</div>
+										<div class="card card-inactive" id="google_ck_opt">
+											<div class="card-body text-center"><img src="../otp/qr_code.jpg"  class="img-fluid" style="max-width: 182px;" id="qr_code_img"></div>
+										</div>
+										<div class=" text-center">
+											<p id="google_key">Key:Loading...</p>
+											<p class="text-muted">구글 인증번호 6자리를 입력하세요</p>
+											<div class="input-group input-group-merge mb-3" style="width:450px;margin: auto;">
+												<input type="number" maxlength="6" id="number_id" oninput="maxLengthCheck(this)" class="form-control" placeholder="인증번호 6자리를 입력하세요" value="">
+												<div class="input-group-append">
+													<div style="padding-left: 5px;"><button class="btn btn-primary" type="button" id="code-btn" onclick="authenticate()">인증하기</button></div>
+													<div style="padding-left: 5px;"><button class="btn btn-primary" type="button" data-toggle="modal" data-target="#modalMembers" onclick="multi_account()">다계정 사용</button></div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="modalMembers" tabindex="-1" role="dialog" aria-hidden="true"></div>
+	</body>
+
+	<script src="assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/libs/@shopify/draggable/lib/es5/draggable.bundle.legacy.js"></script>
+    <script src="assets/libs/autosize/dist/autosize.min.js"></script>
+    <script src="assets/libs/chart.js/dist/Chart.min.js"></script>
+    <script src="assets/libs/dropzone/dist/min/dropzone.min.js"></script>
+    <script src="assets/libs/flatpickr/dist/flatpickr.min.js"></script>
+    <script src="assets/libs/highlightjs/highlight.pack.min.js"></script>
+    <script src="assets/libs/jquery-mask-plugin/dist/jquery.mask.min.js"></script>
+    <script src="assets/libs/quill/dist/quill.min.js"></script>
+    <script src="assets/libs/select2/dist/js/select2.min.js"></script>
+    <script src="assets/libs/chart.js/Chart.extension.min.js"></script>
+    <script src="assets/js/theme.min.js"></script>
+	<script src="assets/js/html.js"></script>
+</html>
+
+<script>
+	var pk_id = 0;
+	var otp_sercet = 0;
+	var google_object = "";
+
+	ck_cookie();
+
+	function ck_cookie(){
+        var data = {
+            result: 'u_ck_cookie'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    var message = JSON.parse(json_data.message);
+					pk_id = message.pk_id;
+					otp_sercet = message.otp_sercet;
+					google_otp();
+                }else{
+                    alert("잘못된 접근이거나. 아이디 혹은 비밀번호가 틀렸습니다.");
+                    location.href="index";
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+	}
+
+	function google_otp(){
+		if(otp_sercet == 0){
+			var data = {
+				result: 'u_insert_google',
+				pk_id: pk_id
+			}
+
+			$.ajax({
+				type: 'POST',
+				url: '../send_db.php',
+				dataType: 'text',
+				data: data,
+				success: function(data){
+					var json_data = JSON.parse(data);
+					if(json_data.code == 1){
+						var message = JSON.parse(json_data.message);
+						google_object = message;
+						$('#qr_code_img').attr('src', '../otp/qr.php?images='+message.otc_code);
+						$('#google_key').html("Key:"+message.secret);
+					}else{
+						alert("서버 에러. 잠시후 다시 시도하세요.");
+					}
+				},
+				error: function(err){
+					alert('error: ' + JSON.stringify(err));
+				}
+			});
+		}else{
+			var html = '';
+			html += '<div class="header-body">';
+			html += '	<h1 class="header-title">OTP 해제</h1>';
+			html += '	<p class="header-subtitle" style="font-size:11px;">구글 OTP App 실행, 안드로이드 휴대폰은 새 계정 추가, 아이폰은 "+" 클릭, QR코드 스캔 혹은 수동으로 Key추가 하기</p>';
+			html += '</div>';
+			html += '<div class="text-center" style="padding-top: 10%;">';
+			html += '	<div class="input-group input-group-merge mb-3" style="width:450px;margin: auto;">';
+			html += '		<input type="text" id="m_user_id" class="form-control" placeholder="아이디를 입력하세요" value="">';
+			html += '	</div>';
+			html += '	<div class="input-group input-group-merge mb-3" style="width:450px;margin: auto;">';
+			html += '		<input type="password" id="m_password" class="form-control" placeholder="비밀번호를 입력하세요." value="">';
+			html += '	</div>';
+			html += '	<div class="input-group input-group-merge mb-3" style="width:450px;margin: auto;">';
+			html += '		<input type="number" maxlength="6" id="m_otp_number" oninput="maxLengthCheck(this)" class="form-control" placeholder="인증번호 6자리를 입력하세요" value="">';
+			html += '	</div>';
+			html += '			<div style="padding-left: 5px;">';
+			html += '				<button class="btn btn-primary" type="button" onclick="authenticate_termination()">Google OTP해지</button>';
+			html += '			</div>';
+			html += '</div>';
+			$('#otp_body_id').html(html);
+		}
+	}
+
+	function multi_account(){
+		var html = '';
+        html += '<div class="modal-dialog modal-dialog-centered" role="document">';
+        html += '   <div class="modal-content">';
+        html += '       <div class="modal-card card" data-toggle="lists">';
+        html += '           <div class="card-header">';
+        html += '               <div class="row align-items-center">';
+        html += '                   <div class="col"><h4 class="card-header-title" id="exampleModalCenterTitle">다계정 연동</h4></div>';
+        html += '                   <div class="col-auto"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>';
+        html += '               </div>';
+        html += '           </div>';
+        html += '           <div class="card-body" style="max-height: 550px;">';
+        html += '               <div class="form-row">';
+        html += '                   <div class="col-12 col-md-12 mb-3">';
+        html += '                       <div style="font-size: 12px;color: #899db7;margin: 0;">메인 아이디</div>';
+        html += '                       <input type="text" class="form-control" id="d_m_user_id" placeholder="메인 아이디">';
+        html += '                   </div>';
+        html += '               </div>';
+        html += '               <div class="form-row">';
+        html += '                   <div class="col-12 col-md-12 mb-3">';
+        html += '                       <div style="font-size: 12px;color: #899db7;margin: 0;">메인 비밀번호</div>';
+        html += '                       <input type="password" class="form-control" id="d_m_user_password" placeholder="메인 비밀번호">';
+        html += '                   </div>';
+        html += '               </div>';
+        html += '               <div class="form-row">';
+        html += '                   <div class="col-12 col-md-12 mb-3">';
+        html += '                       <div style="font-size: 12px;color: #899db7;margin: 0;">Google OTP</div>';
+        html += '                       <input type="number" class="form-control" maxlength="6" oninput="maxLengthCheck(this)" id="d_m_user_otp_sercet" placeholder="Google OTP">';
+        html += '                   </div>';
+        html += '               </div>';
+        html += '			    <div style="text-align: center;"><button class="btn btn-primary" onclick=multi_account_action();>연동하기</button></div>';
+        html += '           </div>';
+        html += '       </div>';
+        html += '   </div>';
+        html += '</div>';
+        $('#modalMembers').html(html);
+	}
+
+	function multi_account_action(){
+		var d_m_user_id = $('#d_m_user_id').val().trim();
+		var d_m_user_password = $('#d_m_user_password').val().trim();
+		var d_m_user_otp_sercet = $('#d_m_user_otp_sercet').val().trim();
+
+		if(d_m_user_id == ""){
+			alert("아이디를 입력하세요.");
+			return;
+		}
+
+		if(d_m_user_password == ""){
+			alert("비밀번호를 입력하세요.");
+			return;
+		}
+
+		if(d_m_user_otp_sercet == ""){
+			alert("구글 OTP번호를 입력하세요.");
+			return;
+		}
+
+		var data = {
+			pk_id: pk_id,
+			d_m_user_id: d_m_user_id,
+			d_m_user_password: d_m_user_password,
+			d_m_user_otp_sercet: d_m_user_otp_sercet,
+			result: 'u_multi_account'
+		}
+
+		$.ajax({
+			type: 'POST',
+			url: '../send_db.php',
+			dataType: 'text',
+			data: data,
+			success: function(data){
+				var json_data = JSON.parse(data);
+				if(json_data.code == 1){
+					alert("연동성공.");
+					var html = '';
+					html += '<div class="header-body">';
+					html += '	<h1 class="header-title">OTP 해제</h1>';
+					html += '	<p class="header-subtitle" style="font-size:11px;">구글 OTP App 실행, 안드로이드 휴대폰은 새 계정 추가, 아이폰은 "+" 클릭, QR코드 스캔 혹은 수동으로 Key추가 하기</p>';
+					html += '</div>';
+					html += '<div class="text-center" style="padding-top: 10%;">';
+					html += '	<div class="input-group input-group-merge mb-3" style="width:450px;margin: auto;">';
+					html += '		<input type="number" id="m_user_id" class="form-control" placeholder="아이디를 입력하세요" value="">';
+					html += '	</div>';
+					html += '	<div class="input-group input-group-merge mb-3" style="width:450px;margin: auto;">';
+					html += '		<input type="password" id="m_password" class="form-control" placeholder="비밀번호를 입력하세요." value="">';
+					html += '	</div>';
+					html += '	<div class="input-group input-group-merge mb-3" style="width:450px;margin: auto;">';
+					html += '		<input type="number" maxlength="6" id="m_otp_number" oninput="maxLengthCheck(this)" class="form-control" placeholder="인증번호 6자리를 입력하세요" value="">';
+					html += '	</div>';
+					html += '			<div style="padding-left: 5px;">';
+					html += '				<button class="btn btn-primary" type="button" onclick="authenticate_termination()">Google OTP해지</button>';
+					html += '			</div>';
+					html += '</div>';
+					$('#otp_body_id').html(html);
+					$('#modalMembers').modal("hide");
+				}else{
+					if(json_data.message == 'FAIL'){ alert("서버 에러. 잠시후 다시 시도하세요."); }
+					else if(json_data.message == 'ID'){ alert("아이디 혹은 비밀번호가 잘못 입력하였습니다."); }
+					else if(json_data.message == 'OTP'){ alert("입력하신 계정에 OTP연동이 안된 계정입니다."); }
+					else if(json_data.message == 'NO_OTP'){ alert("구글 OTP 번호가 일치하지 않습니다."); }
+				}
+			},
+			error: function(err){
+				alert('error: ' + JSON.stringify(err));
+			}
+		});
+	}
+
+	function authenticate(){
+		var number_id = $('#number_id').val();
+
+		if(number_id == ""){
+			alert("인증번호를 입력하세요.");
+			return;
+		}
+
+		var data = {
+			result: 'u_authenticate',
+			secret: google_object.secret,
+			number_id: number_id,
+			pk_id: pk_id
+		}
+
+		$.ajax({
+			type: 'POST',
+			url: '../send_db.php',
+			dataType: 'text',
+			data: data,
+			success: function(data){
+				var json_data = JSON.parse(data);
+				if(json_data.code == 1){
+					alert("연동성공.");
+					var html = '';
+					html += '<div class="header-body">';
+					html += '	<h1 class="header-title">OTP 수정</h1>';
+					html += '	<p class="header-subtitle" style="font-size:11px;">구글 OTP App 실행, 안드로이드 휴대폰은 새 계정 추가, 아이폰은 "+" 클릭, QR코드 스캔 혹은 수동으로 Key추가 하기</p>';
+					html += '</div>';
+					html += '<div class="text-center" style="padding-top: 10%;">';
+					html += '	<div class="input-group input-group-merge mb-3" style="width:450px;margin: auto;">';
+					html += '		<input type="text" id="m_user_id" class="form-control" placeholder="아이디를 입력하세요" value="">';
+					html += '	</div>';
+					html += '	<div class="input-group input-group-merge mb-3" style="width:450px;margin: auto;">';
+					html += '		<input type="password" id="m_password" class="form-control" placeholder="비밀번호를 입력하세요." value="">';
+					html += '	</div>';
+					html += '	<div class="input-group input-group-merge mb-3" style="width:450px;margin: auto;">';
+					html += '		<input type="number" maxlength="6" id="m_otp_number" oninput="maxLengthCheck(this)" class="form-control" placeholder="인증번호 6자리를 입력하세요" value="">';
+					html += '	</div>';
+					html += '			<div style="padding-left: 5px;">';
+					html += '				<button class="btn btn-primary" type="button" onclick="authenticate_termination()">Google OTP해지</button>';
+					html += '			</div>';
+					html += '</div>';
+					$('#otp_body_id').html(html);
+				}else{
+					if(json_data.message == 'FAIL'){ alert("서버 에러. 잠시후 다시 시도하세요."); }
+					else if(json_data.message == 'NO_OTP'){ alert("구글 OTP 불일치."); }
+				}
+			},
+			error: function(err){
+				alert('error123: ' + JSON.stringify(err));
+			}
+		});
+	}
+
+	function authenticate_termination(){
+		var m_user_id = $('#m_user_id').val();
+		var m_password = $('#m_password').val();
+		var m_otp_number = $('#m_otp_number').val();
+
+		if(m_user_id == ""){
+			alert("아이디를 입력하세요.");
+			return;
+		}
+
+		if(m_password == ""){
+			alert("비밀번호를 입력하세요.");
+			return;
+		}
+
+		if(m_otp_number == ""){
+			alert("연동된 OTP번호를 입력하세요.");
+			return;
+		}
+
+		var data = {
+			m_user_id: m_user_id,
+			m_password: m_password,
+			m_otp_number: m_otp_number,
+			result: 'u_authenticate_termination'
+		}
+
+		$.ajax({
+			type: 'POST',
+			url: '../send_db.php',
+			dataType: 'text',
+			data: data,
+			success: function(data){
+				var json_data = JSON.parse(data);
+				if(json_data.code == 1){
+					otp_sercet = 0;
+					google_object = "";
+					alert("구글 OTP가 해지되었습니다.");
+					var html = '';
+					html += '<div class="header-body">';
+					html += '	<h1 class="header-title">OTP 연동</h1>';
+					html += '	<p class="header-subtitle" style="font-size:11px;">구글 OTP App 실행, 안드로이드 휴대폰은 새 계정 추가, 아이폰은 "+" 클릭, QR코드 스캔 혹은 수동으로 Key추가 하기(<a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2" target="_blank">1. Google Play에서 다운로드</a>, <a href="http://itunes.apple.com/us/app/nuan-dao/id388497605" target="_blank">2. 앱스토에서 다운로드</a>)</p>';
+					html += '</div>';
+					html += '<div class="card card-inactive" id="google_ck_opt">';
+					html += '	<div class="card-body text-center"><img src="../otp/qr_code.jpg"  class="img-fluid" style="max-width: 182px;" id="qr_code_img"></div>';
+					html += '</div>';
+					html += '<div class=" text-center">';
+					html += '	<p id="google_key">Key:Loading...</p>';
+					html += '	<p class="text-muted">구글 인증번호 6자리를 입력하세요</p>';
+					html += '	<div class="input-group input-group-merge mb-3" style="width:450px;margin: auto;">';
+					html += '		<input type="number" maxlength="6" id="number_id" oninput="maxLengthCheck(this)" class="form-control" placeholder="인증번호 6자리를 입력하세요" value="">';
+					html += '		<div class="input-group-append">';
+					html += '			<div style="padding-left: 5px;"><button class="btn btn-primary" type="button" id="code-btn" onclick="authenticate()">인증하기</button></div>';
+					html += '			<div style="padding-left: 5px;"><button class="btn btn-primary" type="button" data-toggle="modal" data-target="#modalMembers" onclick="multi_account()">다계정 사용</button></div>';
+					html += '		</div>';
+					html += '	</div>';
+					html += '</div>';
+					$('#otp_body_id').html(html);
+					google_otp();
+				}else{
+					if(json_data.message == 'FAIL'){ alert("서버 에러. 잠시후 다시 시도하세요."); }
+					else if(json_data.message == 'NO_PA'){ alert("아이디 혹은 비밀번호가 잘못되었습니다."); }
+					else if(json_data.message == 'NO_OTP'){ alert("구글 OTP번호가 일치하지 않습니다."); }
+				}
+			},
+			error: function(err){
+				alert('error: ' + JSON.stringify(err));
+			}
+		});
+	}
+
+	function maxLengthCheck(object){
+		if(object.value.length > object.maxLength) {
+			object.value = object.value.slice(0, object.maxLength);
+		}
+	}
+
+	function logout(){
+        var data = {
+            result: 'u_logout'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    location.href="index.html";
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+</script>

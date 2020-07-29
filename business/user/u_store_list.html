@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<script src="../js/user_top.js"></script>
+	</head>
+
+	<body>
+		<script src="../js/user_left.js"></script>
+
+		<div class="main-content">
+			<div class="header">
+				<div class="container-fluid">
+					<div class="header-body">
+						<div class="row align-items-end">
+							<div class="col">
+								<h6 class="header-pretitle">User Home</h6>
+								<h1 class="header-title">가맹점</h1>
+							</div>
+							<div class="col-auto d-none d-md-flex">
+								<a href="javascript:logout();" class="btn btn-primary" id="logout_id">로그아웃</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="container-fluid">
+				<span style="cursor:pointer; width: 5%; margin-bottom: 1%;" onclick="u_hopkeeper();"><button type="button" class="btn btn-link mb-2">가맹점주 접수</button></span>
+				<span style="cursor:pointer; width: 5%; margin-bottom: 1%;" data-toggle="modal" data-target="#modalMembers" onclick="u_add_store();"><button type="button" class="btn btn-link mb-2 fe fe-plus-circle mr-4">가맹점 등록</button></span>
+				<span style="width: 5%; margin-bottom: 1%;" id="total_fee">총금액: $0.00</span>
+				<div class="card" data-toggle="lists">
+					<div class="table-responsive">
+						<div class="card-header">
+							<div class="align-items-center" style="display: flex;">
+								<div class="col-auto">상태</div>
+								<div class="col">
+                                    <select class="form-control" tabindex="-1" id="s_status">
+                                        <option data-select2-id="0" value="0">전체</option>
+                                        <option data-select2-id="0" value="2">통과</option>
+										<option data-select2-id="5" value="3">심사중..</option>
+										<option data-select2-id="5" value="1">실패</option>
+                                    </select>
+								</div>
+								<div class="col-auto">UID</div>
+								<div class="col"><input type="text" class="form-control" id="s_store_id"></div>
+								<div class="col-auto">상호</div>
+								<div class="col"><input type="text" class="form-control" id="s_store_name"></div>
+								<div class="col-auto">시작일</div>
+								<div class="col" style="max-width: 40%;"><input type="text" class="form-control" placeholder="시작일" data-toggle="flatpickr" id="s_start_date"></div>
+                                <div class="col-auto">종료일</div>
+								<div class="col" style="max-width: 40%;"><input type="text" class="form-control" placeholder="종료일" data-toggle="flatpickr"  id="s_stop_date"></div>
+								<div class="col-auto"><button type="submit" class="btn btn-primary" onclick=u_store(1);>검색</button></div>
+							</div>
+						</div>
+
+						<table class="table table-sm table-nowrap card-table">
+							<thead>
+								<tr>
+									<th style="text-align: center;">고유번호</th>
+									<th style="text-align: center;">가맹점 고유번호</th>
+									<th style="text-align: center;">가맹점 상호</th>
+									<th style="text-align: center;">가맹점 계정</th>
+									<th style="text-align: center;">상태</th>
+									<th style="text-align: center;">총받은 수수료</th>
+									<th style="text-align: center;">등록시간</th>
+									<th style="text-align: center;">심사시간</th>
+									<th style="text-align: center;">--</th>
+								</tr>
+							</thead>
+
+							<tbody class="list" id="u_store_list">
+								<tr><td class="orders-date table table-sm table-nowrap card-table" colspan="9" align="center">No Data</td></tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="btn-group btn-group mr-2 mb-3" style="padding-left: 45%;" id="u_store_page_id"></div>
+			</div>
+		</div>
+
+		<div class="modal fade show" id="modalMembers" tabindex="-1" role="dialog" aria-modal="true"></div>
+	</body>
+
+	<script src="../../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/libs/@shopify/draggable/lib/es5/draggable.bundle.legacy.js"></script>
+    <script src="../../assets/libs/autosize/dist/autosize.min.js"></script>
+    <script src="../../assets/libs/chart.js/dist/Chart.min.js"></script>
+    <script src="../../assets/libs/dropzone/dist/min/dropzone.min.js"></script>
+    <script src="../../assets/libs/flatpickr/dist/flatpickr.min.js"></script>
+    <script src="../../assets/libs/highlightjs/highlight.pack.min.js"></script>
+    <script src="../../assets/libs/jquery-mask-plugin/dist/jquery.mask.min.js"></script>
+    <script src="../../assets/libs/quill/dist/quill.min.js"></script>
+    <script src="../../assets/libs/select2/dist/js/select2.min.js"></script>
+    <script src="../../assets/libs/chart.js/Chart.extension.min.js"></script>
+    <script src="../../assets/js/theme.min.js"></script>
+	<script src="../js/html.js"></script>
+</html>
+
+<script>
+	var pk_id = 0;
+    var num = 0;                 // 페이징 처리위한 총 데이터수
+    var page = 1;                // 현재 페이지
+    var list = 10;               // 한페이지 보여줄 데이터수
+    var block = 3;               // 페이지 블럭수
+    var pageNum = 0;             // 총 페이지수
+    var blockNum = 0;            // 총 블럭수
+    var nowBlock = 0;            // 미정
+    var s_page = 0;              // 시작 페이지
+    var e_page = 0;              // 마지막 페이지
+	var s_point = 0;             // 데이터 검색시 시작수
+
+	ck_cookie();
+
+	function ck_cookie(){
+        var data = {
+            result: 'u_ck_cookie'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    var message = JSON.parse(json_data.message);
+                    pk_id = message.pk_id;
+                    u_store(1);
+                }else{
+                    alert("잘못된 접근이거나. 아이디 혹은 비밀번호가 틀렸습니다.");
+                    location.href="../../index.html";
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+	}
+
+	function u_store(page_r, res555){
+		var data2 = {
+			s_status: $('#s_status option:selected').val(),
+			s_store_id: $('#s_store_id').val().trim(),
+			s_store_name: $('#s_store_name').val().trim(),
+			s_start_date: $('#s_start_date').val().trim(),
+			s_stop_date: $('#s_stop_date').val().trim(),
+			pk_id: pk_id,
+			result: 'u_store_count'
+		}
+
+		$.ajax({
+			type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+			data: data2,
+			success: function(data){
+				var json_data = JSON.parse(data);
+				if(json_data.code == 1){
+					$('#total_fee').html('총금액: $' + json_data.total_fee);
+					num = json_data.message;
+                    page = page_r;
+                    pageNum = Math.ceil(num / list);
+                    blockNum = Math.ceil(pageNum / block);
+                    nowBlock = Math.ceil(page / block);
+                    s_page = (nowBlock * block) - 2;
+                    e_page = nowBlock * block;
+                    if(s_page <= 1){ s_page = 1; }
+                    if(pageNum <= e_page){ e_page = pageNum; }
+                    s_point = (page-1) * list;
+                    var html_page = '';
+                    var qian = s_page-1;
+                    var hou = e_page+1;
+                    if(qian < 1){ qian = 1; }
+                    if(hou <= e_page){ hou = pageNum; }
+                    if(s_page > e_page){
+                    }else if(num == 0){
+                    }else{
+                        html_page += '<button type="button" onclick=u_store('+qian+') class="btn btn-primary">이전</button>';
+                        for(var i=s_page; i<=e_page; i++){
+                            if(page == i){ html_page += '<button type="button" onclick=u_store('+i+') class="btn btn-primary" style="background-color: #175bb7;">'+i+'</button>';  }
+                            else { html_page += '<button type="button" onclick=u_store('+i+') class="btn btn-primary">'+i+'</button>';  }
+                        }
+                        html_page += '<button type="button" onclick=u_store('+hou+',5555) class="btn btn-primary">다음</button>';
+					}
+
+					var data = {
+						s_status: $('#s_status option:selected').val(),
+						s_store_id: $('#s_store_id').val().trim(),
+						s_store_name: $('#s_store_name').val().trim(),
+						s_start_date: $('#s_start_date').val().trim(),
+						s_stop_date: $('#s_stop_date').val().trim(),
+						pk_id: pk_id,
+						result: 'u_store',
+						s_data: s_point,
+                        e_data: list
+					}
+
+					$.ajax({
+						type: 'POST',
+						url: '../send_db.php',
+						dataType: 'text',
+						data: data,
+						success: function(data){
+							var json = JSON.parse(data);
+							if(json.code == 1){
+								var message = JSON.parse(json.message);
+								u_store_append(message);
+								$('#u_store_page_id').html(html_page);
+							}else{
+								if(json.message == 'FAIL'){ alert("서버 에러. 잠시후 다시 시도하세요."); }
+								else if(json.message == 'NoData'){
+									$('#total_fee').html('총금액: $0.00');
+									$('#u_store_list').html('<tr><td class="orders-date table table-sm table-nowrap card-table" colspan="9" align="center">No Data</td></tr>');
+								}
+							}
+						},
+						error: function(err){
+							alert('error: ' + JSON.stringify(err));
+						}
+					});
+				}else{
+					if(json_data.message == 'FAIL'){ alert("서버 에러. 잠시후 다시 시도하세요."); }
+					else if(json_data.message == 'NoData'){
+						$('#total_fee').html('총금액: $0.00');
+						$('#u_store_list').html('<tr><td class="orders-date table table-sm table-nowrap card-table" colspan="9" align="center">No Data</td></tr>');
+					}
+				}
+			},
+			error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+		});
+	}
+
+	function u_add_store(){
+		var html = '<div class="modal-dialog modal-dialog-centered" role="document">';
+		html += '	<div class="modal-content">';
+		html += '		<div class="modal-card card" data-toggle="lists">';
+		html += '			<div class="card-header">';
+		html += '				<div class="row align-items-center">';
+		html += '					<div class="col"><h4 class="card-header-title" id="exampleModalCenterTitle">가맹점 등록</h4></div>';
+		html += '					<div class="col-auto"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button></div>';
+		html += '				</div>';
+		html += '			</div>';
+		html += '			<div class="card-body">';
+		html += '				<div class="form-row">';
+		html += '					<div class="col-12 col-md-12 mb-3">';
+		html += '						<div style="font-size: 12px;color: #899db7;margin: 0;">PayBank 가맹점UID</div>';
+		html += '						<input type="number" class="form-control" id="i_paybank_uid" placeholder="PayBank 가맹점UID">';
+		html += '						<div style="font-size: 12px;color: #899db7;margin-top: 10px; text-align: center;">가맹점 신청을 하시고 메일: jason8789@naver.com 관리자로 가입 신청서를 첨부 부탁드립니다.</div>';
+		html += '					</div>';
+		html += '				</div>';
+		html += '				<div style="text-align: center;"><button class="btn btn-primary" onclick="u_add_store_action();">가맹점 등록</button></div>';
+		html += '			</div>';
+		html += '		</div>';
+		html += '	</div>';
+		html += '</div>';
+		$('#modalMembers').html(html);
+	}
+
+	function u_add_store_action(){
+		var i_paybank_uid = $('#i_paybank_uid').val().trim();
+		if(i_paybank_uid == ""){
+			alert("가맹점 UID를 입력하세요.");
+			return;
+		}
+
+		var data = {
+			i_paybank_uid: i_paybank_uid,
+			pk_id: pk_id,
+			result: 'u_add_store'
+		}
+
+		$.ajax({
+			type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+			data: data,
+			success: function(data){
+				var json_data = JSON.parse(data);
+				if(json_data.code == 1){
+					alert("가맹점 등록 성공.");
+					$('#modalMembers').modal("hide");
+					u_store(page);
+				}else{
+					if(json_data.message == 'FAIL'){ alert("서버 에러. 잠시후 다시 시도하세요."); }
+					else if(json_data.message == 'YOU'){ alert("이미 등록된 가맹점 입니다."); }
+					else if(json_data.message == 'NO'){ alert("PayBank에 존재하지 않는 가맹점 입니다."); }
+				}
+			},
+			error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+		});
+	}
+
+	function u_store_reexam(j_pk_id){
+		if(confirm('재심사 하시겠습니까??')){
+			var data = {
+				j_pk_id: j_pk_id,
+				result: 'u_store_reexam'
+			}
+
+			$.ajax({
+				type: 'POST',
+				url: '../send_db.php',
+				dataType: 'text',
+				data: data,
+				success: function(data){
+					var json_data = JSON.parse(data);
+					if(json_data.code == 1){
+						alert("재심사 요청이 되었습니다.");
+						u_store(page);
+					}else{ alert("서버 에러. 잠시후 다시 시도하세요."); }
+				},
+				error: function(err){
+					alert('error: ' + JSON.stringify(err));
+				}
+			});
+		}
+	}
+
+	function u_hopkeeper(){
+		window.open("https://merchant.paybank.com/login.html"); 
+	}
+
+	function logout(){
+        var data = {
+            result: 'u_logout'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    location.href="../../index.html";
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+</script>

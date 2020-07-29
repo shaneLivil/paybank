@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <script src="https://www.paybank.com/payserver/jquery.min.js"></script>
+		<script src="https://www.paybank.com/payserver/payment.min.js"></script>
+        <script src="../js/user_top.js"></script>
+    </head>
+
+    <body>
+        <nav class="navbar navbar-vertical fixed-left navbar-expand-md " id="sidebar"></nav>
+        <nav id="sidebarSmall"></nav>
+        <div class="main-content" id="topnav"></div>
+        
+        <div class="main-content">
+            <div class="header">
+                <div class="container-fluid">
+                    <div class="header-body">
+                        <div class="row align-items-end">
+                            <div class="col">
+                                <h6 class="header-pretitle">User Home</h6>
+                                <h1 class="header-title">등록 결제</h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-fluid">
+                <span style="cursor:pointer; width: 5%; margin-bottom: 1%;"><button type="button" data-toggle="modal" data-target="#modalMembers" class="btn btn-primary btn-sm mb-2 mr-4" onclick="payment_2();" style="margin-bottom: 1.375rem!important;">결제하기</button></span>
+            </div>
+
+            <div class="modal fade" id="modalMembers" tabindex="-1" role="dialog" aria-hidden="true"></div>
+        </div>
+    </body>
+
+    <script src="../../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/libs/@shopify/draggable/lib/es5/draggable.bundle.legacy.js"></script>
+    <script src="../../assets/libs/autosize/dist/autosize.min.js"></script>
+    <script src="../../assets/libs/chart.js/dist/Chart.min.js"></script>
+    <script src="../../assets/libs/dropzone/dist/min/dropzone.min.js"></script>
+    <script src="../../assets/libs/flatpickr/dist/flatpickr.min.js"></script>
+    <script src="../../assets/libs/highlightjs/highlight.pack.min.js"></script>
+    <script src="../../assets/libs/jquery-mask-plugin/dist/jquery.mask.min.js"></script>
+    <script src="../../assets/libs/quill/dist/quill.min.js"></script>
+    <script src="../../assets/libs/select2/dist/js/select2.min.js"></script>
+    <script src="../../assets/libs/chart.js/Chart.extension.min.js"></script>
+    <script src="../../assets/js/theme.min.js"></script>
+	<script src="../js/html.js"></script>
+</html>
+
+<script>
+    var pk_id = getParameterByName("pk_id");
+    var receiving_number = "";
+    var receiving_address = "";
+    var color_id = "";
+
+    function payment_2(){
+        var data = {
+            pk_id: pk_id,
+            result: 'u_payment_ck'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    var html = '';
+                    html += '<div class="modal-dialog modal-dialog-centered" role="document">';
+                    html += '	<div class="modal-content">';
+                    html += '		<div class="modal-card card" data-toggle="lists">'; 
+                    html += '			<div class="card-header">';
+                    html += '				<div class="row align-items-center">';
+                    html += '					<div class="col">';
+                    html += '						<h4 class="card-header-title" id="exampleModalCenterTitle">결제하기</h4>';
+                    html += '					</div>';
+                    html += '					<div class="col-auto">';
+                    html += '						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>';
+                    html += '					</div>';
+                    html += '				</div>';
+                    html += '			</div>';
+                    html += '			<div class="card-body">';
+                    html += '				<div class="row">';
+                    html += '					<div class="col-12 col-xl-6">';
+                    html += '						<div class="form-row" style="text-align: center;">';  
+                    html += '							<div class="col-12 mb-3">';	
+                    html += '								<input type="number" class="form-control is-valid" id="receiving_number" placeholder="전화번호" value="" style="border-color: #2c7be5;">';
+                    html += '							</div>';
+                    html += '						</div>';
+                    html += '						<div class="form-row" style="text-align: center;">';
+                    html += '							<div class="col-12 mb-3">';
+                    html += '								<input type="text" class="form-control is-valid" id="receiving_address" placeholder="받을 주소" value="" style="border-color: #2c7be5;">';
+                    html += '							</div>';
+                    html += '						</div>';
+                    html += '						<div class="form-row" style="text-align: center;">';			  
+                    html += '							<div class="col-12 mb-3">';					
+                    html += '								<select class="form-control" tabindex="-1" id="color_id" onchange="color_onchange()">';						
+                    html += '									<option data-select2="" value="blue">블루월렛</option>';						
+                    html += '									<option data-select2="" value="red">레드월렛</option>';			
+                    html += '								</select>';						  
+                    html += '							</div>';			
+                    html += '						</div>';
+                    html += '					</div>';
+                    html += '					<div class="col-12 col-xl-6">';	
+                    html += '					<div class="card"><img src="../../assets/img/card/blue_card.png" width="100%" id="img_card_id"></div>';	
+                    html += '				</div>';
+                    html += '			<div style="text-align: center; width: 100%;">';	
+                    html += '				<div style="text-align: center;"><button class="btn btn-primary" onclick=payment();>결제</button></div>';
+                    html += '			</div>';
+                    html += '			</div>';
+                    html += '		</div>';
+                    html += '	</div>';
+                    html += '</div>';
+                    
+                    $('#modalMembers').html(html);
+                }else{
+                    if(json_data.message == 'FAIL'){ alert("서버 에러. 잠시후 다시 시도하세요."); }
+                    else if(json_data.message == 'YOU'){
+                        alert("이미 회원가입 결제가 완료되었습니다. 로그인 페이지로 이동합니다.");
+                        location.href="../../login.html";
+                    }
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+
+    function payment(){
+        if($('#receiving_number').val().trim() == ""){
+            alert("전화번호를 입력하세요.");
+            return;
+        }
+        if($('#receiving_address').val().trim() == ""){
+            alert("받을 주소를 입력하세요.");
+            return;
+        }
+
+        receiving_number = $('#receiving_number').val().trim();
+        receiving_address = $('#receiving_address').val().trim();
+        color_id = $('#color_id option:selected').val();
+
+        var data = {
+            pk_id: pk_id,
+            result: 'u_payment_ck'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    if(confirm('결제 하시겠습니까??')){ login_payment(); }
+                }else{
+                    if(json_data.message == 'FAIL'){ alert("서버 에러. 잠시후 다시 시도하세요."); }
+                    else if(json_data.message == 'YOU'){
+                        alert("이미 회원가입 결제가 완료되었습니다. 로그인 페이지로 이동합니다.");
+                        location.href="../../login.html";
+                    }
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+        
+    }
+
+    document.writeln("<livil id=\'paybank_window\'></livil>"); // iframe div
+	var post_json = "";
+	var api_server = "./u_buy_login.php"; //setup
+	var merchantOrderNum = "";
+	var goodsName = "";
+
+    function login_payment(){
+        $('#modalMembers').modal("hide");
+        post_json = {
+            pk_id: pk_id,
+            receiving_number: receiving_number,
+            receiving_address: receiving_address,
+            color_id: color_id,
+            result: 'login_payment'
+        }
+
+        $.post(api_server, post_json, function(data,status){
+            var obj = JSON.parse(data);
+			if(obj.sign){
+				merchantOrderNum = obj.merchantOrderNum;
+				goodsName = obj.goodsName;
+                action_pay(data);
+			}else{ alert('fail'); }
+		});
+    }
+
+    function getParameterByName(name) {
+		name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+		var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+			results = regex.exec(location.search);
+		return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+	}
+
+    function color_onchange(){
+		if($('#color_id option:selected').val() == 'blue'){
+			$('#img_card_id').attr("src", "../../assets/img/card/blue_card.png");
+		}else{
+			$('#img_card_id').attr("src", "../../assets/img/card/red_card.png");
+		}
+	}
+</script>

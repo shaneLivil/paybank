@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <style>
+            * {margin: 0; padding: 0;}
+            
+            .tree ul {
+                padding-top: 20px; position: relative;
+                
+                transition: all 0.5s;
+                -webkit-transition: all 0.5s;
+                -moz-transition: all 0.5s;
+            }
+            
+            .tree li {
+                float: left; text-align: center;
+                list-style-type: none;
+                position: relative;
+                padding: 20px 5px 0 5px;
+                
+                transition: all 0.5s;
+                -webkit-transition: all 0.5s;
+                -moz-transition: all 0.5s;
+            }
+            
+            /*We will use ::before and ::after to draw the connectors*/
+            
+            .tree li::before, .tree li::after{
+                content: '';
+                position: absolute; top: 0; right: 50%;
+                border-top: 1px solid #ccc;
+                width: 50%; height: 20px;
+            }
+            .tree li::after{
+                right: auto; left: 50%;
+                border-left: 1px solid #ccc;
+            }
+            
+            /*We need to remove left-right connectors from elements without 
+            any siblings*/
+            .tree li:only-child::after, .tree li:only-child::before {
+                display: none;
+            }
+            
+            /*Remove space from the top of single children*/
+            .tree li:only-child{ padding-top: 0;}
+            
+            /*Remove left connector from first child and 
+            right connector from last child*/
+            .tree li:first-child::before, .tree li:last-child::after{
+                border: 0 none;
+            }
+            /*Adding back the vertical connector to the last nodes*/
+            .tree li:last-child::before{
+                border-right: 1px solid #ccc;
+                border-radius: 0 5px 0 0;
+                -webkit-border-radius: 0 5px 0 0;
+                -moz-border-radius: 0 5px 0 0;
+            }
+            .tree li:first-child::after{
+                border-radius: 5px 0 0 0;
+                -webkit-border-radius: 5px 0 0 0;
+                -moz-border-radius: 5px 0 0 0;
+            }
+            
+            /*Time to add downward connectors from parents*/
+            .tree ul ul::before{
+                content: '';
+                position: absolute; top: 0; left: 50%;
+                border-left: 1px solid #ccc;
+                width: 0; height: 20px;
+            }
+            
+            .tree li a{
+                border: 1px solid #ccc;
+                padding: 5px 10px;
+                text-decoration: none;
+                color: #666;
+                font-family: arial, verdana, tahoma;
+                font-size: 11px;
+                display: inline-block;
+                
+                border-radius: 5px;
+                -webkit-border-radius: 5px;
+                -moz-border-radius: 5px;
+                
+                transition: all 0.5s;
+                -webkit-transition: all 0.5s;
+                -moz-transition: all 0.5s;
+            }
+            
+            /*Time for some hover effects*/
+            /*We will apply the hover effect the the lineage of the element also*/
+            .tree li a:hover, .tree li a:hover+ul li a {
+                background: #c8e4f8; color: #000; border: 1px solid #94a0b4;
+            }
+            /*Connector styles on hover*/
+            .tree li a:hover+ul li::after, 
+            .tree li a:hover+ul li::before, 
+            .tree li a:hover+ul::before, 
+            .tree li a:hover+ul ul::before{
+                border-color:  #94a0b4;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="tree" id="tree" style="width:5000000px;">
+            <ul>
+                <li id="divParent">
+                    <a href="" style="background-color: #C4B73B;"><h1 id="hi_my_id" >나의 추천인</h1></a>
+                    <ul id="main_content"></ul>
+                </li>
+            </ul>
+        </div>
+    </body>
+
+    <script src="../../assets/libs/jquery/dist/jquery.min.js"></script>
+    <script src="../../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/libs/@shopify/draggable/lib/es5/draggable.bundle.legacy.js"></script>
+    <script src="../../assets/libs/autosize/dist/autosize.min.js"></script>
+    <script src="../../assets/libs/chart.js/dist/Chart.min.js"></script>
+    <script src="../../assets/libs/dropzone/dist/min/dropzone.min.js"></script>
+    <script src="../../assets/libs/flatpickr/dist/flatpickr.min.js"></script>
+    <script src="../../assets/libs/highlightjs/highlight.pack.min.js"></script>
+    <script src="../../assets/libs/jquery-mask-plugin/dist/jquery.mask.min.js"></script>
+    <script src="../../assets/libs/list.js/dist/list.min.js"></script>
+    <script src="../../assets/libs/quill/dist/quill.min.js"></script>
+    <script src="../../assets/libs/select2/dist/js/select2.min.js"></script>
+    <script src="../../assets/libs/chart.js/Chart.extension.min.js"></script>
+    <script src="../../assets/js/theme.min.js"></script>
+	<script src="../js/html.js"></script>
+</html>
+
+<form name="frm" action="./u_registration.html" method="get">
+    <input type="hidden" name="j_pk_id" id="j_pk_id" value="" />
+</form>
+
+<script>
+    var pk_id = 0;
+
+    ck_cookie();
+
+    function ck_cookie(){
+        var data = {
+            result: 'u_ck_cookie'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    var message = JSON.parse(json_data.message);
+                    pk_id = message.pk_id;
+                    $('#hi_my_id').html(message.user_id);
+                    u_parent_genealogy(pk_id);
+                }else{
+                    alert("잘못된 접근이거나. 아이디 혹은 비밀번호가 틀렸습니다.");
+                    location.href="../../index.html";
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+
+    function u_parent_genealogy(j_pk_id){
+        var data = {
+            j_pk_id: j_pk_id,
+            result: 'u_parent_genealogy'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    var data = JSON.parse(json_data.message);
+                    var i_count = data.length - 1;
+                    var ckckck = false;
+                    var html = '';
+                    for(var i=0; i<data.length; i++){
+                        var color = "";
+                        if(data[i].support_money_tow_1 > 10000000){ color = "#A566FF"; }
+                        else if(data[i].support_money_tow_1 > 3000000){ color = "#2A365C"; }
+                        else if(data[i].support_money_tow_1 > 750000){ color = "#0054FF"; }
+                        else if(data[i].support_money_tow_1 > 125000){ color = "#007644"; }
+                        else if(data[i].support_money_tow_1 > 25000){ color = "#FFE400"; }
+                        else if(data[i].support_money_tow_1 > 5000){ color = "#F3753A"; }
+                        else if(data[i].support_money_tow_1 > 1000){ color = "#FF0000"; }
+                        else{ if(data[i].member_rock == 1){ color = "#C4B73B"; } }
+                        html += '<li id="parent_'+data[i].pk_id+'_list">';
+                        html += '<a style="background-color: '+color+'">'+data[i].user_id+'</a>';
+                        html += '</li>';
+                        click_genealogy(data[i].pk_id,data[i].user_id,color);
+                        if(data[i].member_rock == 1){ ckckck = true; }
+                        // if(i == i_count){
+                        //     if(data[i].member_rock == 1){ ckckck = true; }
+                        // }
+                    }
+                    if(ckckck){
+                        html += '<li id="parent_'+j_pk_id+'_list">';
+                        html += '   <a href=javascript:registration('+j_pk_id+');>회원등록</a>';
+                        html += '</li>';
+                    }
+                    $('#main_content').html(html);
+                    var div = document.getElementById('divParent');
+                    scrollWidth = scrollWidth + div.scrollWidth * 1.5;
+                    $('#tree').attr("style","width:"+scrollWidth+"px");
+                }else{
+                    if(json_data.message == 'FAIL'){ alert("서버 에러. 잠시후 다시 시도하세요."); }
+                    else if(json_data.message == 'NoData'){
+                        var html = '';
+                        html += '<li id="parent_'+j_pk_id+'_list">';
+                        html += '   <a href=javascript:registration('+j_pk_id+');>회원등록</a>';
+                        html += '</li>';
+                        $('#main_content').html(html);
+                    }
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+
+    function click_genealogy(j_pk_id, j_user_id, j_color){
+        var data = {
+            j_pk_id: j_pk_id,
+            result: 'u_parent_genealogy'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                console.log(json_data);
+                if(json_data.code == 1){
+                    var data = JSON.parse(json_data.message);
+                    var html = '';
+                    html += '       <a style="background-color: '+j_color+'">'+j_user_id+'</a>';
+                    html += '       <ul>';
+                    for(var i=0; i<data.length; i++){
+                        var color = "";
+                        if(data[i].support_money_tow_1 > 10000000){ color = "#A566FF"; }
+                        else if(data[i].support_money_tow_1 > 3000000){ color = "#2A365C"; }
+                        else if(data[i].support_money_tow_1 > 750000){ color = "#0054FF"; }
+                        else if(data[i].support_money_tow_1 > 125000){ color = "#007644"; }
+                        else if(data[i].support_money_tow_1 > 25000){ color = "#FFE400"; }
+                        else if(data[i].support_money_tow_1 > 5000){ color = "#F3753A"; }
+                        else if(data[i].support_money_tow_1 > 1000){ color = "#FF0000"; }
+                        else{ if(data[i].member_rock == 1){ color = "#C4B73B"; } }
+                        html += '<li id="parent_'+data[i].pk_id+'_list"><a style="background-color: '+color+'">'+data[i].user_id+'</a></li>';
+                        click_genealogy(data[i].pk_id,data[i].user_id,color);
+                    }
+                    html += '       </ul>';
+                    $('#parent_'+j_pk_id+'_list').html(html);
+                    var div = document.getElementById('divParent');
+                    scrollWidth = scrollWidth + div.scrollWidth * 1.5;
+                    $('#tree').attr("style","width:"+scrollWidth+"px");
+                }else{
+                    if(json_data.message == 'FAIL'){ alert("서버 에러. 잠시후 다시 시도하세요."); }
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+
+    function registration(j_pk_id){
+        var fr = document.frm;
+        fr.action = "./u_registration.html";
+        fr.target = "winName";
+        fr.j_pk_id.value = j_pk_id;
+        frm.submit();
+    }
+</script>

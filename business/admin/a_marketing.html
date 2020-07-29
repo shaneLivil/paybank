@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<script src="../js/admin_top.js"></script>
+	</head>
+
+	<body>
+		<script src="../js/admin_left.js"></script>
+
+		<div class="main-content">
+			<div class="header">
+				<div class="container-fluid">
+					<div class="header-body">
+						<div class="row align-items-end">
+							<div class="col">
+								<h6 class="header-pretitle">Admin Home</h6>
+								<h1 class="header-title">마케팅 지원</h1>
+							</div>
+							<div class="col-auto d-none d-md-flex">
+								<a href="javascript:logout();" class="btn btn-primary">로그아웃</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="container-fluid">
+				<span style="cursor:pointer; width: 5%; margin-bottom: 1%;"><button type="button" class="btn btn-link mb-2 fe fe-plus-circle mr-4" onclick=add_marketing();>마케팅 지원 추가</button></span>
+				<div class="card" data-toggle="lists">
+					<div class="table-responsive">
+						<table class="table table-sm table-nowrap card-table">
+							<thead>
+								<tr>
+									<th class="orders-order" style="text-align: center;">번호</th>
+									<th class="orders-order" style="text-align: center;">IMG</th>
+									<th class="orders-order" style="text-align: center;">제목</th>
+									<th class="orders-product" style="text-align: center;">내용</th>
+									<th class="orders-date" style="text-align: center;">시간</th>
+									<th class="text-muted sort" style="text-align: center;">설정</th>
+								</tr>
+							</thead>
+
+							<tbody class="list" id="a_marketing_list">
+								<tr><td class="orders-date table table-sm table-nowrap card-table" colspan="6" align="center">No Data</td></tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<div class="modal fade" id="modalMembers" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content">
+						<div class="modal-card card" data-toggle="lists">
+							<div class="card-body" style="max-height: 1100px;">
+								<div class="row justify-content-center">
+									<div>
+										<p class="text-muted text-center mb-5">이미지</p>
+										<div class="form-group">
+											<div class="input-group input-group-merge mb-3"><img src="" id="n_main_img_id" style="width: 100%;"></div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+
+	<script src="../../assets/libs/jquery/dist/jquery.min.js"></script>
+    <script src="../../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/libs/@shopify/draggable/lib/es5/draggable.bundle.legacy.js"></script>
+    <script src="../../assets/libs/autosize/dist/autosize.min.js"></script>
+    <script src="../../assets/libs/chart.js/dist/Chart.min.js"></script>
+    <script src="../../assets/libs/dropzone/dist/min/dropzone.min.js"></script>
+    <script src="../../assets/libs/flatpickr/dist/flatpickr.min.js"></script>
+    <script src="../../assets/libs/highlightjs/highlight.pack.min.js"></script>
+    <script src="../../assets/libs/jquery-mask-plugin/dist/jquery.mask.min.js"></script>
+    <script src="../../assets/libs/list.js/dist/list.min.js"></script>
+    <script src="../../assets/libs/quill/dist/quill.min.js"></script>
+    <script src="../../assets/libs/select2/dist/js/select2.min.js"></script>
+    <script src="../../assets/libs/chart.js/Chart.extension.min.js"></script>
+    <script src="../../assets/js/theme.min.js"></script>
+    <script src="../js/html.js"></script>
+</html>
+
+<form name="frm" action="./a_marketing_modifined.html" method="get">
+    <input type="hidden" name="j_pk_id" id="j_pk_id" value="" />
+</form>
+
+<script>
+	var pk_id = 0;
+
+	ck_cookie();
+
+	function ck_cookie(){
+        var data = {
+            result: 'a_ck_cookie'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    var message = JSON.parse(json_data.message);
+                    pk_id = message.pk_id;
+                    a_marketing();
+                }else{
+                    alert("잘못된 접근이거나. 아이디 혹은 비밀번호가 틀렸습니다.");
+                    location.href="../../index.html";
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+	}
+
+	function a_marketing(){
+		var data = {
+			result: 'a_marketing'
+		}
+
+		$.ajax({
+			type: 'POST',
+			url: '../send_db.php',
+			dataType: 'text',
+			data: data,
+			success: function(data){
+				var json_data = JSON.parse(data);
+				if(json_data.code == 1){
+					var message = JSON.parse(json_data.message);
+					a_marketing_append(message);
+				}else{
+					if(json_data.message == "FAIL"){ alert("서버 에러. 잠시후 다시 시도하세요."); }
+					else if(json_data.message == "NoData"){ $('#a_marketing_list').html('<tr><td class="orders-date table table-sm table-nowrap card-table" colspan="6" align="center">No Data</td></tr>'); }
+				}
+			},
+			error: function(err){
+				alert('error: ' + JSON.stringify(err));
+			}
+		});
+	}
+	
+	function add_marketing(){
+		location.href="./a_add_marketing.html";
+	}
+
+	function marketing_imgclick(img_path){
+		var img_p = "../data/imgmain/"+img_path;
+		$('#n_main_img_id').attr("src", img_p);
+	}
+
+	function marketing_delete(j_pk_id){
+		if(confirm('삭제하시겠습니까??')){
+			var data = {
+				result: 'a_marketing_delete',
+				j_pk_id: j_pk_id
+			}
+
+			$.ajax({
+				type: 'POST',
+				url: '../send_db.php',
+				dataType: 'text',
+				data: data,
+				success: function(data){
+					var json_data = JSON.parse(data);
+					if(json_data.code == 1){
+						alert("삭제 되었습니다.");
+						a_marketing();
+					}else{ alert("서버 에러. 잠시후 다시 시도하세요."); }
+				},
+				error: function(err){
+					alert('error: ' + JSON.stringify(err));
+				}
+			});
+		}
+	}
+
+	function marketing_modifined(j_pk_id){
+		var fr = document.frm;
+		fr.action = "a_marketing_modifined.html";
+		fr.j_pk_id.value = j_pk_id;
+		fr.submit();
+	}
+
+	function logout(){
+        var data = {
+            result: 'a_logout'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    location.href="../../index.html";
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+</script>

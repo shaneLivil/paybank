@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<script src="https://www.paybank.com/payserver/jquery.min.js"></script>
+		<script src="https://www.paybank.com/payserver/payment.min.js"></script>
+		<script src="../js/user_top.js"></script>
+	</head>
+
+	<body>
+        <script src="../js/user_left.js"></script>
+        
+        <div class="main-content">
+            <div class="pt-7 pb-8 bg-dark bg-ellipses">
+                <div class="header" style="float: right;">
+                    <div class="col-auto d-none d-md-flex">
+                        <a href="javascript:logout();" class="btn btn-primary">로그아웃</a>
+                    </div>
+                </div>
+
+                <div class="container-fluid">
+                    <div class="row justify-content-center">
+                        <div class="col-md-10 col-lg-8 col-xl-6">
+                            <h1 class="display-3 text-center text-white">상품 구매</h1>
+                            <p class="lead text-center text-muted">We have plans and prices that fit your business perfectly</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-fluid">
+                <div class="row mt-n7">
+                    <div class="col-12 col-lg-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="text-uppercase text-center text-muted my-4">Wallet Card</h6>
+                                <div class="row no-gutters align-items-center justify-content-center">
+                                    <div class="col-auto"><div class="h2 mb-0">$</div></div>
+                                    <div class="col-auto"><div class="display-2 mb-0">11</div></div>
+                                </div>
+
+                                <div class="h6 text-uppercase text-center text-muted mb-5">월렛카드</div>
+
+                                <div class="mb-3">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                            <small>월렛카드</small> <i class="fe fe-check-circle text-success"></i>
+                                        </li>
+                                        <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                            <small>기본($330~$11000)</small> <i class="fe fe-check-circle text-success"></i>
+                                        </li>
+                                        <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                            <small>기본(30~1000장)</small> <i class="fe fe-check-circle text-success"></i>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <span class="btn btn-block btn-primary" data-toggle="modal" data-target="#modalMembers" onclick="wallet_card();">월렛카드 구매</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="text-uppercase text-center text-muted my-4">블랙카드(VISA체크)</h6>
+                                <div class="row no-gutters align-items-center justify-content-center">
+                                    <div class="col-auto"><div class="h2 mb-0">$</div></div>
+                                    <div class="col-auto"><div class="display-2 mb-0">55</div></div>
+                                </div>
+                                <div class="h6 text-uppercase text-center text-muted mb-5">VISA CARD</div>
+                                <div class="mb-3">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                            <small>VISA카드</small> <i class="fe fe-check-circle text-success"></i>
+                                        </li>
+                                        <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                            <small>기본($55~$550000)</small> <i class="fe fe-check-circle text-success"></i>
+                                        </li>
+                                        <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                            <small>기본(1장~10000장)</small> <i class="fe fe-check-circle text-success"></i>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <span class="btn btn-block btn-primary" data-toggle="modal" data-target="#modalMembers" onclick="visa_card();">VISA카드 구매</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="text-uppercase text-center text-muted my-4">terminal</h6>
+                                <div class="row no-gutters align-items-center justify-content-center">
+                                    <div class="col-auto"><div class="h2 mb-0">$</div></div>
+                                    <div class="col-auto"><div class="display-2 mb-0">330</div></div>
+                                </div>
+                                <div class="h6 text-uppercase text-center text-muted mb-5">단말기</div>
+                                <div class="mb-3">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                            <small>코인 단말기</small> <i class="fe fe-check-circle text-success"></i>
+                                        </li>
+                                        <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                            <small>기본($330)</small> <i class="fe fe-check-circle text-success"></i>
+                                        </li>
+                                        <li class="list-group-item d-flex align-items-center justify-content-between px-0">
+                                            <small>기본(1개)</small> <i class="fe fe-check-circle text-success"></i>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <span class="btn btn-block btn-primary" data-toggle="modal" data-target="#modalMembers" onclick="terminal_card();" id="terminal_id">단말기 구매</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="modalMembers" tabindex="-1" role="dialog" aria-hidden="true"></div>
+            </div>
+        </div>
+	</body>
+
+	<script src="../../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/libs/@shopify/draggable/lib/es5/draggable.bundle.legacy.js"></script>
+    <script src="../../assets/libs/autosize/dist/autosize.min.js"></script>
+    <script src="../../assets/libs/chart.js/dist/Chart.min.js"></script>
+    <script src="../../assets/libs/dropzone/dist/min/dropzone.min.js"></script>
+    <script src="../../assets/libs/flatpickr/dist/flatpickr.min.js"></script>
+    <script src="../../assets/libs/highlightjs/highlight.pack.min.js"></script>
+    <script src="../../assets/libs/jquery-mask-plugin/dist/jquery.mask.min.js"></script>
+    <script src="../../assets/libs/quill/dist/quill.min.js"></script>
+    <script src="../../assets/libs/select2/dist/js/select2.min.js"></script>
+    <script src="../../assets/libs/chart.js/Chart.extension.min.js"></script>
+    <script src="../../assets/js/theme.min.js"></script>
+	<script src="../js/html.js"></script>
+</html>
+
+<script>
+    var pk_id = 0;
+    var support_money_tow_1 = 0;
+    var user_status = 0;
+    var receiving_number = "";
+    var receiving_address = "";
+    var color_id = "";
+    var price_id = "";
+    var sss_receiving_number = "";
+    var sss_receiving_address = "";
+
+    ck_cookie();
+
+    function ck_cookie(){
+        var data = {
+            result: 'u_ck_cookie'
+        }
+
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    var message = JSON.parse(json_data.message);
+                    pk_id = message.pk_id;
+                    support_money_tow_1 = message.support_money_tow_1;
+                    user_status = message.user_status;
+                    // ckckckck();
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '../send_db.php',
+                        dataType: 'text',
+                        data: { result: 'u_select_addres', pk_id: pk_id },
+                        success: function(data){
+                            var json = JSON.parse(data);
+                            if(json.code == 1){
+                                sss_receiving_number = json.receiving_number;
+                                sss_receiving_address = json.receiving_address;
+                            }else{
+                                if(json.message == 'FAIL'){ alert("서버 에러. 잠시후 다시 시도하세요."); }
+                            }
+                        },
+                        error: function(err){
+                            alert('error: ' + JSON.stringify(err));
+                        }
+                    });
+                }else{
+                    alert("잘못된 접근이거나. 아이디 혹은 비밀번호가 틀렸습니다.");
+                    location.href="../../index.html";
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+
+    function wallet_card(){
+        var html = '';
+        html += '<div class="modal-dialog modal-dialog-centered" role="document">';
+        html += '<div class="modal-content">';
+        html += '	<div class="modal-card card" data-toggle="lists">';	
+        html += '		<div class="card-header">';
+        html += '			<div class="row align-items-center">';
+        html += '				<div class="col">';
+        html += '					<h4 class="card-header-title" id="exampleModalCenterTitle">월렛카드</h4>';
+        html += '				</div>';
+        html += '				<div class="col-auto">';
+        html += '					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>';
+        html += '				</div>';
+        html += '			</div>';
+        html += '		</div>';
+        html += '		<div class="card-body">';
+        html += '			<div class="row">';
+        html += '					<div class="col-12 col-xl-6">';
+        html += '						<div class="form-row" style="text-align: center;">';  
+        html += '							<div class="col-12 mb-3">';			
+        html += '								<input type="number" class="form-control is-valid" id="receiving_number" placeholder="전화번호" value="'+sss_receiving_number+'" style="border-color: #2c7be5;">';	  
+        html += '							</div>';			  		
+        html += '						</div>';			
+        html += '						<div class="form-row" style="text-align: center;">';			  
+        html += '							<div class="col-12 mb-3">';					
+        html += '								<input type="text" class="form-control is-valid" id="receiving_address" placeholder="받을주소" value="'+sss_receiving_address+'" style="border-color: #2c7be5;">';						  
+        html += '							</div>';			
+        html += '						</div>';			
+        html += '						<div class="form-row" style="text-align: center;">';			  
+        html += '							<div class="col-12 mb-3">';					
+        html += '								<select class="form-control" tabindex="-1" id="color_id" onchange="color_onchange()">';						
+        html += '									<option data-select2="" value="blue">블루월렛</option>';						
+        html += '									<option data-select2="" value="red">레드월렛</option>';			
+        html += '								</select>';						  
+        html += '							</div>';			
+        html += '						</div>';			
+        html += '						<div class="form-row">';			  
+        html += '							<div class="col-12 mb-3">';					
+        html += '								<select class="form-control" tabindex="-1" id="wallet_price_id">';						
+        // html += '									<option data-select2="" value="10000">$10000/1000장/7S/100점</option>';
+        html += '									<option data-select2="" value="33000">$33000/3000장/3000점</option>';
+        html += '									<option data-select2="" value="11000">$11000/1000장/1000점</option>';
+        html += '									<option data-select2="" value="3300">$3300/300장/300점</option>';
+        html += '									<option data-select2="" value="1100">$1100/100장/100점</option>';
+        html += '									<option data-select2="" value="330">$330/30장/30점</option>';
+        // html += '									<option data-select2="" value="200">$200/20장/2S/2점</option>';
+        // html += '									<option data-select2="" value="100">$100/10장/1S/1점</option>';			
+        html += '								</select>';					  
+        html += '							</div>';			
+        html += '						</div>';						
+        html += '					</div>';	
+        html += '					<div class="col-12 col-xl-6">';	
+        html += '					<div class="card"><img src="../../assets/img/card/blue_card.png" width="100%" id="img_card_id"></div>';	
+        html += '				</div>';	
+        html += '			</div>';	
+        html += '			<div style="text-align: center;">';	
+        html += '				<button class="btn btn-primary" onclick=b_card_pass(2);>월렛카드 구매</button>';	
+        html += '			</div>';	
+        html += '		</div>';	
+        html += '	</div>';		
+        html += '</div>';
+        html += '</div>';
+        $('#modalMembers').html(html);
+    }
+
+    function visa_card(){
+        var html = '';
+        html += '<div class="modal-dialog modal-dialog-centered" role="document">';
+        html += '	<div class="modal-content">';
+        html += '		<div class="modal-card card" data-toggle="lists">';
+        html += '			<div class="card-header">';
+        html += '				<div class="row align-items-center">';
+        html += '					<div class="col">';
+        html += '						<h4 class="card-header-title" id="exampleModalCenterTitle">블랙카드(VISA체크)</h4>';
+        html += '					</div>';
+        html += '					<div class="col-auto">';
+        html += '						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>';
+        html += '					</div>';
+        html += '				</div>';
+        html += '			</div>';
+        html += '			<div class="card-body">';
+        html += '				<div class="row">';
+        html += '					<div class="col-12 col-xl-6">';
+        html += '						<div class="form-row" style="text-align: center;">';  
+        html += '							<div class="col-12 mb-3">';	
+        html += '								<input type="number" class="form-control is-valid" id="receiving_number" placeholder="전화번호" value="'+sss_receiving_number+'" style="border-color: #2c7be5;">';
+        html += '							</div>';
+        html += '						</div>';
+        html += '						<div class="form-row" style="text-align: center;">';
+        html += '							<div class="col-12 mb-3">';
+        html += '								<input type="text" class="form-control is-valid" id="receiving_address" placeholder="받을 주소" value="'+sss_receiving_address+'" style="border-color: #2c7be5;">';
+        html += '							</div>';
+        html += '						</div>';
+        html += '						<div class="form-row" style="text-align: center;">';
+        html += '							<div class="col-12 mb-3">';
+        html += '								<select class="form-control" tabindex="-1" id="black_price_id">';
+        html += '									<option data-select2 value="550000">VISA카드/$550000/10000장/10000점</option>';
+        html += '									<option data-select2 value="55000">VISA카드/$55000/1000장/1000점</option>';	
+        html += '									<option data-select2 value="5500">VISA카드/$5500/100장/100점</option>';	
+        html += '									<option data-select2 value="550">VISA카드/$550/10장/10점</option>';	
+        html += '									<option data-select2 value="55">VISA카드/$55/1장/1점</option>';	
+        html += '								</select>';
+        html += '							</div>';
+        html += '						</div>';
+        html += '					</div>';
+        html += '					<div class="col-12 col-xl-6">';
+        html += '						<div class="card"><img src="../../assets/img/card/black_card.png" width="100%" id="img_card_id"></div>';
+        html += '					</div>';
+        html += '				</div>';
+        html += '			<div style="text-align: center;">';	
+        html += '				<div style="text-align: center;"><button class="btn btn-primary" onclick=b_card_pass(4);>카드 구매</button></div>';
+        html += '			</div>';
+        html += '			</div>';
+        html += '		</div>';
+        html += '	</div>';
+        html += '</div>';
+        $('#modalMembers').html(html);
+    }
+
+    function terminal_card(){
+        var html = '';
+        html += '<div class="modal-dialog modal-dialog-centered" role="document">';
+        html += '	<div class="modal-content">';
+        html += '		<div class="modal-card card" data-toggle="lists">';
+        html += '			<div class="card-header">';
+        html += '				<div class="row align-items-center">';
+        html += '					<div class="col">';
+        html += '						<h4 class="card-header-title" id="exampleModalCenterTitle">코인 단말기</h4>';
+        html += '					</div>';
+        html += '					<div class="col-auto">';
+        html += '						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>';
+        html += '					</div>';
+        html += '				</div>';
+        html += '			</div>';
+        html += '			<div class="card-body">';
+        html += '				<div>';
+        html += '		<div class="form-row" style="text-align: center;">';
+        html += '		  <div class="col-12 col-md-6 mb-3">';
+        html += '				<input type="number" class="form-control is-valid" id="receiving_number" placeholder="전화번호" value="'+sss_receiving_number+'" style="border-color: #2c7be5;">';
+        html += '				<div class="invalid-feedback">Please provide a valid city.</div>';
+        html += '		  </div>';
+        html += '		</div>';
+        html += '		<div class="form-row" style="text-align: center;">';
+        html += '		  <div class="col-12 col-md-6 mb-3">';
+        html += '				<input type="text" class="form-control is-valid" id="receiving_address" placeholder="받을 주소" value="'+sss_receiving_address+'" style="border-color: #2c7be5;">';
+        html += '				<div class="invalid-feedback">Please provide a valid city.</div>';
+        html += '		  </div>';
+        html += '		</div>';
+        html += '		<div class="form-row">';
+        html += '		  <div class="col-12 col-md-6 mb-3">';
+        html += '				<select class="form-control" tabindex="-1" id="terminal_price_id">';
+        html += '					<option data-select2 value="330000">$330000/1000개/5000점</option>';
+        html += '					<option data-select2 value="33000">$33000/100개/500점</option>';
+        html += '					<option data-select2 value="3300">$3300/10개/50점</option>';
+        html += '					<option data-select2 value="330">$330/1개/5점</option>';
+        html += '				</select>';
+        html += '			<div class="valid-feedback">Looks good!</div>';
+        html += '		  </div>';
+        html += '		</div>';
+        html += '					<div style="text-align: center;"><button class="btn btn-primary" onclick=b_card_pass(3);>단말기 구매</button></div>';
+        html += '				</div>';
+        html += '			</div>';
+        html += '		</div>';
+        html += '	</div>';
+        html += '</div>';
+        $('#modalMembers').html(html);
+    }
+
+    function b_card_pass(result){
+        if($('#receiving_number').val().trim() == ""){
+            alert("받으실 전화번호를 입력하세요.");
+            return;
+        }
+
+        if($('#receiving_address').val().trim() == ""){
+            alert("받으실 주소를 입력하세요.");
+            return;
+        }
+        receiving_number = $('#receiving_number').val().trim();
+        receiving_address = $('#receiving_address').val().trim();
+        color_id = $('#color_id option:selected').val();
+        if(result == 2){ price_id = $('#wallet_price_id option:selected').val(); }
+        else if(result == 4){ price_id = $('#black_price_id option:selected').val(); }
+        else if(result == 3){ price_id = $('#terminal_price_id option:selected').val(); }
+        $('#modalMembers').modal("hide");
+        paybank_pay(result); 
+    }
+
+    document.writeln("<livil id=\'paybank_window\'></livil>"); // iframe div
+	var post_json = "";
+	var api_server = "./u_buy_card.php";                       // setup
+
+    function paybank_pay(t_status){
+        post_json = {
+            pk_id: pk_id,                          // 회원 번호
+            t_status: t_status,                    // 구분 2.월렛카드, 4.비자카드, 3.단말기
+            receiving_number: receiving_number,    // 받으실 전화번호
+            receiving_address: receiving_address,  // 받으실 주소
+            price_id: price_id,                    // 금액
+            color_id: color_id,                    // 카드 색상
+            result: 'card_payment'
+        }
+
+        $.post(api_server, post_json, function(data, status){
+            var obj = JSON.parse(data);
+            if(obj.sign){
+                action_pay(data);    // send data play
+            }else{
+                alert("fail");
+            }
+        });
+    }
+
+    function color_onchange(){
+		if($('#color_id option:selected').val() == 'blue'){
+			$('#img_card_id').attr("src", "../../assets/img/card/blue_card.png");
+		}else{
+			$('#img_card_id').attr("src", "../../assets/img/card/red_card.png");
+		}
+	}
+
+    function logout(){
+        var data = {
+            result: 'u_logout'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    location.href="../../index.html";
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+</script>

@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <script src="../js/admin_top.js"></script>
+    </head>
+
+    <body>
+        <script src="../js/admin_left.js"></script>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="container-fluid">
+                    <div class="header-body">
+                        <div class="row align-items-end">
+                            <div class="col">
+                                <h6 class="header-pretitle">Admin Home</h6>
+                                <h1 class="header-title">스타 보너스</h1>
+                            </div>
+                            <div class="col-auto d-none d-md-flex">
+                                <a href="javascript:logout();" class="btn btn-primary">로그아웃</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-fluid">
+                <span class="mb-2 mr-4" style="cursor:pointer; width: 10%; color: #6799FF;" id="total_pax">PAX: 0.00</span>
+                <div class="card" data-toggle="lists">
+                    <div class="table-responsive">
+                        <div class="card-header">
+                            <div class="align-items-center" style="display: flex; padding:5px;">
+                                <div class="col col-auto">코드번호</div>
+                                <div class="col"><input type="number" class="form-control" id="s_agent_id"></div>
+                                <div class="col col-auto">이름</div>
+                                <div class="col"><input type="text" class="form-control" id="s_user_name"></div>
+                                <div class="col col-auto">아이디</div>
+                                <div class="col"><input type="text" class="form-control" id="s_user_id"></div>
+                                <div class="col col-auto">번호</div>
+                                <div class="col"><input type="text" class="form-control" id="s_user_phon"></div>
+                                <div class="col-auto d-none d-md-flex">시작일</div>
+                                <div class="col" style="max-width: 20%;"><input type="text" class="form-control" placeholder="시작일" data-toggle="flatpickr" id="s_start_date"></div>
+                                <div class="col-auto d-none d-md-flex">종료일</div>
+                                <div class="col" style="max-width: 20%;"><input type="text" class="form-control" placeholder="종료일" data-toggle="flatpickr"  id="s_stop_date"></div>
+                                <div class="col-auto"><button type="submit" class="btn btn-primary" onclick=a_star_bonus(1);>검색</button></div>
+                            </div>
+                        </div>
+
+                        <table class="table table-sm table-nowrap card-table">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: center;">코드번호</th>
+                                    <th style="text-align: center;">이름</th>
+                                    <th style="text-align: center;">아이디</th>
+                                    <th style="text-align: center;">PAX</th>
+                                    <th style="text-align: center;">퍼센트</th>
+                                    <th style="text-align: center;">등록시간</th>
+                                    <th style="text-align: center;">--</th>
+                                </tr>
+                            </thead>
+
+                            <tbody class="list" id="a_star_bonus_list">
+                                <tr><td class="orders-date table table-sm table-nowrap card-table" colspan="7" align="center">No Data</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="btn-group btn-group mr-2 mb-3" style="padding-left: 45%;" id="a_star_bonus_page_id"></div>
+            </div>
+        </div>
+    </body>
+
+    <script src="../../assets/libs/jquery/dist/jquery.min.js"></script>
+    <script src="../../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/libs/@shopify/draggable/lib/es5/draggable.bundle.legacy.js"></script>
+    <script src="../../assets/libs/autosize/dist/autosize.min.js"></script>
+    <script src="../../assets/libs/chart.js/dist/Chart.min.js"></script>
+    <script src="../../assets/libs/dropzone/dist/min/dropzone.min.js"></script>
+    <script src="../../assets/libs/flatpickr/dist/flatpickr.min.js"></script>
+    <script src="../../assets/libs/highlightjs/highlight.pack.min.js"></script>
+    <script src="../../assets/libs/jquery-mask-plugin/dist/jquery.mask.min.js"></script>
+    <script src="../../assets/libs/quill/dist/quill.min.js"></script>
+    <script src="../../assets/libs/select2/dist/js/select2.min.js"></script>
+    <script src="../../assets/libs/chart.js/Chart.extension.min.js"></script>
+    <script src="../../assets/js/theme.min.js"></script>
+	<script src="../js/html.js"></script>
+</html>
+
+<script>
+    var pk_id = 0;
+    var num = 0;                 // 페이징 처리위한 총 데이터수
+    var page = 1;                // 현재 페이지
+    var list = 10;               // 한페이지 보여줄 데이터수
+    var block = 3;               // 페이지 블럭수
+    var pageNum = 0;             // 총 페이지수
+    var blockNum = 0;            // 총 블럭수
+    var nowBlock = 0;            // 미정
+    var s_page = 0;              // 시작 페이지
+    var e_page = 0;              // 마지막 페이지
+    var s_point = 0;             // 데이터 검색시 시작수
+
+    ck_cookie();
+
+    function ck_cookie(){
+        var data = {
+            result: 'a_ck_cookie'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    var message = JSON.parse(json_data.message);
+                    pk_id = message.pk_id;
+                    a_star_bonus(1);
+                }else{
+                    alert("잘못된 접근이거나. 아이디 혹은 비밀번호가 틀렸습니다.");
+                    location.href="../../index.html";
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+
+    function a_star_bonus(page_r, res555){
+        var data2 = {
+            s_agent_id: $('#s_agent_id').val().trim(),
+            s_user_name: $('#s_user_name').val().trim(),
+            s_user_id: $('#s_user_id').val().trim(),
+            s_user_phon: $('#s_user_phon').val().trim(),
+            s_start_date: $('#s_start_date').val().trim(),
+            s_stop_date: $('#s_stop_date').val().trim(),
+            result: 'a_star_bonus_count'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data2,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    $('#total_pax').html("PAX: "+json_data.parent_pax);
+                    num = json_data.message;
+                    page = page_r;
+                    pageNum = Math.ceil(num / list);
+                    blockNum = Math.ceil(pageNum / block);
+                    nowBlock = Math.ceil(page / block);
+                    s_page = (nowBlock * block) - 2;
+                    e_page = nowBlock * block;
+                    if(s_page <= 1){ s_page = 1; }
+                    if(pageNum <= e_page){ e_page = pageNum; }
+                    s_point = (page-1) * list;
+                    var html_page = '';
+                    var qian = s_page-1;
+                    var hou = e_page+1;
+                    if(qian < 1){ qian = 1; }
+                    if(hou <= e_page){ hou = pageNum; }
+                    if(s_page > e_page){
+                    }else if(num == 0){
+                    }else{
+                        html_page += '<button type="button" onclick=a_star_bonus('+qian+') class="btn btn-primary">이전</button>';
+                        for(var i=s_page; i<=e_page; i++){
+                            if(page == i){ html_page += '<button type="button" onclick=a_star_bonus('+i+') class="btn btn-primary" style="background-color: #175bb7;">'+i+'</button>';  }
+                            else { html_page += '<button type="button" onclick=a_star_bonus('+i+') class="btn btn-primary">'+i+'</button>';  }
+                        }
+                        html_page += '<button type="button" onclick=a_star_bonus('+hou+',5555) class="btn btn-primary">다음</button>';
+                    }
+
+                    var data = {
+                        s_agent_id: $('#s_agent_id').val().trim(),
+                        s_user_name: $('#s_user_name').val().trim(),
+                        s_user_id: $('#s_user_id').val().trim(),
+                        s_user_phon: $('#s_user_phon').val().trim(),
+                        s_start_date: $('#s_start_date').val().trim(),
+                        s_stop_date: $('#s_stop_date').val().trim(),
+                        result: 'a_star_bonus',
+                        s_data: s_point,
+                        e_data: list
+                    }
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '../send_db.php',
+                        dataType: 'text',
+                        data: data,
+                        success: function(data){
+                            var json = JSON.parse(data);
+                            if(json.code == 1){
+                                var message = JSON.parse(json.message);
+                                a_star_bonus_append(message);
+                                $('#a_star_bonus_page_id').html(html_page);
+                            }else{
+                                $('#total_pax').html("PAX: 0.00");
+                                $('#a_star_bonus_list').html('<tr><td class="orders-date table table-sm table-nowrap card-table" colspan="7" align="center">No Data</td></tr>');
+                            }
+                        },
+                        error: function(err){
+                            alert('error: ' + JSON.stringify(err));
+                        }
+                    });
+                }else{
+                    if(json_data.message == 'FAIL'){ alert("서버 에러. 잠시후 다시 시도하세요."); }
+                    else if(json_data.message == 'NoData'){
+                        $('#total_pax').html('PAX: 0.00');
+                        $('#a_star_bonus_list').html('<tr><td class="orders-date table table-sm table-nowrap card-table" colspan="7" align="center">No Data</td></tr>');
+                    }
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+
+    function logout(){
+        var data = {
+            result: 'a_logout'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    location.href="../../index.html";
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+</script>

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <script src="../js/admin_top.js"></script>
+    </head>
+
+    <body>
+        <script src="../js/admin_left.js"></script>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="container-fluid">
+                    <div class="header-body">
+                        <div class="row align-items-end">
+                            <div class="col">
+                                <h6 class="header-pretitle">Admin Home</h6>
+                                <h1 class="header-title">회원자산</h1>
+                            </div>
+                            <div class="col-auto d-none d-md-flex">
+                                <a href="javascript:logout();" class="btn btn-primary">로그아웃</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-fluid">
+                <div class="card" data-toggle="lists">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-nowrap card-table">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: center;">PAX</th>
+                                    <th style="text-align: center;">CSP</th>
+                                    <th style="text-align: center;">출금(PAX)</th>
+                                </tr>
+                            </thead>
+
+                            <tbody class="list" id="a_asset_managent">
+                                <tr><td class="orders-date table table-sm table-nowrap card-table" colspan="3" align="center">No Data</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+
+    <script src="../../assets/libs/jquery/dist/jquery.min.js"></script>
+    <script src="../../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/libs/@shopify/draggable/lib/es5/draggable.bundle.legacy.js"></script>
+    <script src="../../assets/libs/autosize/dist/autosize.min.js"></script>
+    <script src="../../assets/libs/chart.js/dist/Chart.min.js"></script>
+    <script src="../../assets/libs/dropzone/dist/min/dropzone.min.js"></script>
+    <script src="../../assets/libs/flatpickr/dist/flatpickr.min.js"></script>
+    <script src="../../assets/libs/highlightjs/highlight.pack.min.js"></script>
+    <script src="../../assets/libs/jquery-mask-plugin/dist/jquery.mask.min.js"></script>
+    <script src="../../assets/libs/list.js/dist/list.min.js"></script>
+    <script src="../../assets/libs/quill/dist/quill.min.js"></script>
+    <script src="../../assets/libs/select2/dist/js/select2.min.js"></script>
+    <script src="../../assets/libs/chart.js/Chart.extension.min.js"></script>
+    <script src="../../assets/js/theme.min.js"></script>
+    <script src="../js/html.js"></script>
+</html>
+
+<script>
+    var pk_id = 0;
+
+    ck_cookie();
+
+    function ck_cookie(){
+        var data = {
+            result: 'a_ck_cookie'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    var message = JSON.parse(json_data.message);
+                    pk_id = message.pk_id;
+                    a_assets_list();
+                }else{
+                    alert("잘못된 접근이거나. 아이디 혹은 비밀번호가 틀렸습니다.");
+                    location.href="../../index.html";
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+
+    function a_assets_list(){
+        var data = {
+            result: 'a_assets_list'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    var message = JSON.parse(json_data.message);
+                    a_assets_append(message);
+                }else{ alert("서버 에러. 잠시후 다시 시도하세요."); }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+
+    function logout(){
+        var data = {
+            result: 'a_logout'
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '../send_db.php',
+            dataType: 'text',
+            data: data,
+            success: function(data){
+                var json_data = JSON.parse(data);
+                if(json_data.code == 1){
+                    location.href="../../index.html";
+                }
+            },
+            error: function(err){
+                alert('error: ' + JSON.stringify(err));
+            }
+        });
+    }
+</script>
